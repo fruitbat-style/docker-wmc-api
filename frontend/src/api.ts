@@ -1,4 +1,4 @@
-import type { Location } from './types';
+import type { Location, FiltersResponse } from './types';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -29,5 +29,11 @@ export async function fetchLocations(params: {
 
   const res = await fetch(`/api/locations?${searchParams}`);
   if (!res.ok) throw new Error('Failed to fetch locations');
+  return res.json();
+}
+
+export async function fetchFilters(): Promise<FiltersResponse> {
+  const res = await fetch('/api/locations/filters');
+  if (!res.ok) throw new Error('Failed to fetch filters');
   return res.json();
 }

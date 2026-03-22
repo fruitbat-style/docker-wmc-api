@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WMCApi.Data;
+using WMCApi.Services;
 
 namespace WMCApi.Controllers;
 
@@ -8,11 +7,11 @@ namespace WMCApi.Controllers;
 [Route("api/[controller]")]
 public class LocationsController : ControllerBase
 {
-    private readonly WmcDbContext _db;
+    private readonly ILocationService _locationService;
 
-    public LocationsController(WmcDbContext db)
+    public LocationsController(ILocationService locationService)
     {
-        _db = db;
+        _locationService = locationService;
     }
 
     [HttpGet(Name = "GetLocations")]
@@ -23,47 +22,25 @@ public class LocationsController : ControllerBase
         [FromQuery] int flavor = 0,
         [FromQuery] int product = 0)
     {
-        var filterByDistance = radius > 0 && (lat != 0 || lng != 0);
+        if (lat < -90 || lat > 90)
+            return BadRequest("lat must be between -90 and 90.");
+        if (lng < -180 || lng > 180)
+            return BadRequest("lng must be between -180 and 180.");
+        if (radius < 0)
+            return BadRequest("radius must be a positive number.");
+        if (flavor < 0)
+            return BadRequest("flavor must be a positive integer.");
+        if (product < 0)
+            return BadRequest("product must be a positive integer.");
 
-        // Build a raw SQL query that does Haversine distance filtering in Postgres
-        var sql = """
-            SELECT l.*
-            FROM locations l
-            WHERE 1=1
-            """;
-
-        if (flavor > 0)
-            sql += """
-                 AND EXISTS (
-                    SELECT 1 FROM location_items i
-                    WHERE i."LocationId" = l."Id" AND i."FlavorId" = {1}
-                )
-                """;
-
-        if (product > 0)
-            sql += """
-                 AND EXISTS (
-                    SELECT 1 FROM location_items i
-                    WHERE i."LocationId" = l."Id" AND i."ProductId" = {2}
-                )
-                """;
-
-        if (filterByDistance)
-            sql += """
-                 AND (
-                    3958.8 * 2 * ASIN(SQRT(
-                        POWER(SIN(RADIANS(l."Lat" - {3}) / 2), 2) +
-                        COS(RADIANS({3})) * COS(RADIANS(l."Lat")) *
-                        POWER(SIN(RADIANS(l."Lng" - {4}) / 2), 2)
-                    ))
-                ) <= {0}
-                """;
-
-        var locations = await _db.Locations
-            .FromSqlRaw(sql, radius, flavor, product, lat, lng)
-            .Include(l => l.Items)
-            .ToListAsync();
-
+        var locations = await _locationService.SearchAsync(lat, lng, radius, flavor, product);
         return Ok(locations);
+    }
+
+    [HttpGet("filters", Name = "GetFilters")]
+    public async Task<ActionResult<FiltersResponse>> GetFilters()
+    {
+        var filters = await _locationService.GetFiltersAsync();
+        return Ok(filters);
     }
 }

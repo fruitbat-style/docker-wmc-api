@@ -1,20 +1,21 @@
 using Microsoft.EntityFrameworkCore;
+using WMCApi;
 using WMCApi.Data;
+using WMCApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonConfig.SnakeCaseOptions.PropertyNamingPolicy;
     });
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<WmcDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<ILocationService, LocationService>();
 
 builder.Services.AddCors(options =>
 {
@@ -28,7 +29,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -38,12 +38,11 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<WmcDbContext>();
-    await SeedData.SeedLocationsAsync(db, app.Environment.ContentRootPath);
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    await SeedData.SeedLocationsAsync(db, app.Environment.ContentRootPath, logger);
 }
 
 app.UseCors();
-
-app.UseAuthorization();
 
 app.MapControllers();
 

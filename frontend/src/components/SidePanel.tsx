@@ -1,8 +1,6 @@
-import type { Filters } from '../types';
+import type { Filters, FiltersResponse, MetroArea } from '../types';
 import logo from '../assets/MGC_Logo_purple.webp';
 
-const FLAVORS = ['Original Spicy', 'Herbal (no caffeine)', 'Green', 'Lemon', 'Hibiscus'];
-const PRODUCT_TYPES = ['Chai Served here', '16oz Bottle', 'Dry mix'];
 const DISTANCE_STEPS = [1, 2, 5, 10, 25, 0]; // 0 = All
 const DISTANCE_LABELS = ['1mi', '2mi', '5mi', '10mi', '25mi', 'All'];
 
@@ -12,9 +10,11 @@ interface SidePanelProps {
   onSearch: () => void;
   open: boolean;
   onToggle: () => void;
+  metroAreas: MetroArea[];
+  availableFilters: FiltersResponse | null;
 }
 
-export default function SidePanel({ filters, onFiltersChange, onSearch, open, onToggle }: SidePanelProps) {
+export default function SidePanel({ filters, onFiltersChange, onSearch, open, onToggle, metroAreas, availableFilters }: SidePanelProps) {
   const update = (partial: Partial<Filters>) =>
     onFiltersChange({ ...filters, ...partial });
 
@@ -90,10 +90,9 @@ export default function SidePanel({ filters, onFiltersChange, onSearch, open, on
                     onChange={(e) => update({ metro: e.target.value })}
                     className="w-full bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] px-3 py-3 text-sm font-['Roboto'] text-[#1c1b1a] outline-none appearance-none border-none cursor-pointer"
                   >
-                    <option value="San Francisco, CA">San Francisco, CA</option>
-                    <option value="Seattle, WA">Seattle, WA</option>
-                    <option value="Portland, OR">Portland, OR</option>
-                    <option value="Los Angeles, CA">Los Angeles, CA</option>
+                    {metroAreas.map((metro) => (
+                      <option key={metro.name} value={metro.name}>{metro.name}</option>
+                    ))}
                   </select>
                   <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#7d747e] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -131,34 +130,38 @@ export default function SidePanel({ filters, onFiltersChange, onSearch, open, on
           </section>
 
           {/* Flavors Section */}
-          <section className="flex flex-col gap-4">
-            <h2 className="font-['Roboto'] font-bold text-lg text-white leading-7">Flavors</h2>
-            <div className="flex flex-col gap-2">
-              {FLAVORS.map((flavor) => (
-                <CheckboxOption
-                  key={flavor}
-                  checked={filters.flavors.includes(flavor)}
-                  onChange={() => toggleFlavor(flavor)}
-                  label={flavor}
-                />
-              ))}
-            </div>
-          </section>
+          {availableFilters && availableFilters.flavors.length > 0 && (
+            <section className="flex flex-col gap-4">
+              <h2 className="font-['Roboto'] font-bold text-lg text-white leading-7">Flavors</h2>
+              <div className="flex flex-col gap-2">
+                {availableFilters.flavors.map((flavor) => (
+                  <CheckboxOption
+                    key={flavor.id}
+                    checked={filters.flavors.includes(flavor.name)}
+                    onChange={() => toggleFlavor(flavor.name)}
+                    label={flavor.name}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Product Type Section */}
-          <section className="flex flex-col gap-4">
-            <h2 className="font-['Roboto'] font-bold text-lg text-white leading-7">Product Type</h2>
-            <div className="flex flex-col gap-2">
-              {PRODUCT_TYPES.map((type) => (
-                <CheckboxOption
-                  key={type}
-                  checked={filters.productTypes.includes(type)}
-                  onChange={() => toggleProductType(type)}
-                  label={type}
-                />
-              ))}
-            </div>
-          </section>
+          {availableFilters && availableFilters.product_types.length > 0 && (
+            <section className="flex flex-col gap-4">
+              <h2 className="font-['Roboto'] font-bold text-lg text-white leading-7">Product Type</h2>
+              <div className="flex flex-col gap-2">
+                {availableFilters.product_types.map((type) => (
+                  <CheckboxOption
+                    key={type.id}
+                    checked={filters.productTypes.includes(type.name)}
+                    onChange={() => toggleProductType(type.name)}
+                    label={type.name}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
 
         {/* Footer CTA */}
