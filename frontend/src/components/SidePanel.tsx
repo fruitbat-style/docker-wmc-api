@@ -197,7 +197,7 @@ function RadioOption({ checked, onChange, label }: { checked: boolean; onChange:
     <label className="flex items-center gap-3 cursor-pointer">
       <div
         className={`w-[22px] h-[22px] rounded-full border flex items-center justify-center shrink-0 ${
-          checked ? 'bg-[#351643] border-transparent' : 'bg-white border-[#7d747e]'
+          checked ? 'bg-[#fdd3f4] border-transparent' : 'bg-white border-[#7d747e]'
         }`}
         onClick={onChange}
       >
