@@ -26,8 +26,8 @@ export default function App() {
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [locations, setLocations] = useState<Location[]>([]);
   const [center, setCenter] = useState<[number, number]>(DEFAULT_CENTER);
-  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(true);
 
   const doSearch = useCallback(async () => {
     setLoading(true);
@@ -79,20 +79,18 @@ export default function App() {
     doSearch();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const filteredLocations = searchQuery
-    ? locations.filter((loc) =>
-        loc.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : locations;
-
   return (
-    <div className="flex h-screen bg-[#fdf8f5]">
-      <SidePanel filters={filters} onFiltersChange={setFilters} onSearch={doSearch} />
+    <div className="relative h-[100dvh] w-screen overflow-hidden bg-[#fdf8f5]">
+      <SidePanel
+        filters={filters}
+        onFiltersChange={setFilters}
+        onSearch={() => { doSearch(); setPanelOpen(false); }}
+        open={panelOpen}
+        onToggle={() => setPanelOpen((v) => !v)}
+      />
       <MapCanvas
-        locations={filteredLocations}
+        locations={locations}
         center={center}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
       />
       {loading && (
         <div className="absolute top-4 right-4 z-[1001] bg-[#4c2c5a] text-white font-['Manrope'] text-sm px-4 py-2 rounded-full shadow-lg">
