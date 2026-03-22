@@ -16,6 +16,16 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<WmcDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -30,6 +40,8 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<WmcDbContext>();
     await SeedData.SeedLocationsAsync(db, app.Environment.ContentRootPath);
 }
+
+app.UseCors();
 
 app.UseAuthorization();
 
