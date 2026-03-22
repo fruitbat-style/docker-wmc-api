@@ -1,0 +1,667 @@
+[
+  {
+    "name": "Flying Mug Coffee",
+    "address": ", Seattle, WA",
+    "lat": 47.606209,
+    "lng": -122.332069,
+    "phone": "",
+    "photo_url": "",
+    "website_url": "https://www.flyingmugcoffee.com/contact",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Retro Coffee",
+    "address": "920 5th Ave #150, Seattle, WA 98104",
+    "lat": 47.60643,
+    "lng": -122.331268,
+    "phone": "(513) 801-8095",
+    "photo_url": "",
+    "website_url": "",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Top Pot - 3rd",
+    "address": "720 Third Ave, Seattle, WA 98104",
+    "lat": 47.604099,
+    "lng": -122.332253,
+    "phone": "206-454-3694",
+    "photo_url": "",
+    "website_url": "http://toppotdoughnuts.com/cafe-info.html",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Monorail Espresso - Columbia Tower",
+    "address": "701 5th Ave, Seattle, WA 98104",
+    "lat": 47.604637,
+    "lng": -122.33075,
+    "phone": "",
+    "photo_url": "",
+    "website_url": "https://www.monorailespresso.com/columbia.html",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Sweet Iron Waffles",
+    "address": "1200 3rd Ave, Seattle, WA 98101",
+    "lat": 47.607418,
+    "lng": -122.335197,
+    "phone": "(206) 682-3336",
+    "photo_url": "",
+    "website_url": "https://sweetironwaffles.com/",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Voxx",
+    "address": "1200 6th ave, Seattle, WA 98101",
+    "lat": 47.608967,
+    "lng": -122.332047,
+    "phone": "206-682-1242",
+    "photo_url": "",
+    "website_url": "voxxseattle.com",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Biscuit Bitch",
+    "address": "621 3rd Ave, Seattle, WA 98104",
+    "lat": 47.603271,
+    "lng": -122.3321,
+    "phone": "(206)623-1859",
+    "photo_url": "",
+    "website_url": "https://biscuitbitch.com/",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "City Grind",
+    "address": "600 4th Ave, Seattle, WA 98127",
+    "lat": 47.603809,
+    "lng": -122.329941,
+    "phone": "206-552-8042",
+    "photo_url": "",
+    "website_url": "https://www.citygrindespresso.com/",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      },
+      {
+        "product_id": 1,
+        "flavor_id": 2,
+        "product_name": "Served by the glass",
+        "flavor_name": "Herbal (no caffeine)"
+      },
+      {
+        "product_id": 1,
+        "flavor_id": 3,
+        "product_name": "Served by the glass",
+        "flavor_name": "Green"
+      }
+    ]
+  },
+  {
+    "name": "Planet Java",
+    "address": "72 S Washington St , Seattle, WA 98104",
+    "lat": 47.601009,
+    "lng": -122.334991,
+    "phone": "206-340-8859",
+    "photo_url": "",
+    "website_url": "http://www.planetjavadiner.com",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Monorail Espresso - Pike",
+    "address": "510 Pike St, Seattle, WA 98101",
+    "lat": 47.611057,
+    "lng": -122.335487,
+    "phone": "",
+    "photo_url": "",
+    "website_url": "https://www.monorailespresso.com/pikest.html",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Tougo Coffee - Convention Center",
+    "address": "800 Convention Pl, Seattle, WA 98101",
+    "lat": 47.611889,
+    "lng": -122.331718,
+    "phone": "",
+    "photo_url": "",
+    "website_url": "https://www.tougocoffee.com/",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "NYC Deli",
+    "address": "1520 7th Ave, Seattle, WA 98101",
+    "lat": 47.612206,
+    "lng": -122.333511,
+    "phone": "",
+    "photo_url": "",
+    "website_url": "nycdeli7thave.com",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      },
+      {
+        "product_id": 5,
+        "flavor_id": 1,
+        "product_name": "16oz. Bottle",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Caffe Ladro - Union",
+    "address": "108 Union St , Seattle, WA 98101",
+    "lat": 47.608051,
+    "lng": -122.338913,
+    "phone": "(206) 267-0600",
+    "photo_url": "http://www.caffeladro.com/images/StorePics/Union.jpg",
+    "website_url": "http://www.caffeladro.com",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Caffe Ladro - Pine",
+    "address": "801 Pine Street, Seattle, WA 98101",
+    "lat": 47.612972,
+    "lng": -122.332726,
+    "phone": "206-405-1950",
+    "photo_url": "http://www.caffeladro.com/images/StorePics/Pine.jpg",
+    "website_url": "http://www.caffeladro.com",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Zeitgeist Kunst an Kaffee",
+    "address": "171 S. Jackson St, Seattle, WA 98104",
+    "lat": 47.599007,
+    "lng": -122.331947,
+    "phone": "206-583-0497",
+    "photo_url": "",
+    "website_url": "https://www.zeitgeistcoffee.com/",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Cone & Steiner - PSQ",
+    "address": "135 S King St, Seattle, WA 98104",
+    "lat": 47.598087,
+    "lng": -122.33223,
+    "phone": "(206) 402-3682",
+    "photo_url": "",
+    "website_url": "https://www.coneandsteiner.com/locations",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      },
+      {
+        "product_id": 3,
+        "flavor_id": 1,
+        "product_name": "1/2 Gallon Jugs",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Verite Coffee and Cupcake Royale - Downtown",
+    "address": "106 Pine St, Seattle, WA 98101",
+    "lat": 47.610138,
+    "lng": -122.340767,
+    "phone": "(206) 443-8674",
+    "photo_url": "",
+    "website_url": "https://www.cupcakeroyale.com/",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "EMC2/Isilon Cafe",
+    "address": "505 First Ave. S., Seattle, WA 98104",
+    "lat": 47.597424,
+    "lng": -122.334717,
+    "phone": "",
+    "photo_url": "",
+    "website_url": "",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Top Pot - Stewart",
+    "address": "101 Stewart Street, Seattle, WA 98101",
+    "lat": 47.610298,
+    "lng": -122.340858,
+    "phone": "206-269-5066",
+    "photo_url": "",
+    "website_url": "http://toppotdoughnuts.com/cafe-info.html",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Caffe Ladro - 1800 9th",
+    "address": "1800 Ninth Ave, Seattle, WA 98101",
+    "lat": 47.615276,
+    "lng": -122.333458,
+    "phone": "(206) 708-1387",
+    "photo_url": "",
+    "website_url": "https://www.caffeladro.com/locations/1800-ninth-caffe-ladro/",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Joe Chocolate Co.",
+    "address": "1606 Pike Place, Seattle, WA 98101",
+    "lat": 47.609653,
+    "lng": -122.341927,
+    "phone": "(206) 728-1717",
+    "photo_url": "",
+    "website_url": "https://joechocolateco.com/",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Caff� Lieto",
+    "address": "1909 1st Ave, Seattle, WA 98101",
+    "lat": 47.610367,
+    "lng": -122.341698,
+    "phone": "(206)441-7999",
+    "photo_url": "",
+    "website_url": "https://biscuitbitch.com/",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Top Pot - Madison",
+    "address": "1206 Madison Street, Seattle, WA 98104",
+    "lat": 47.610062,
+    "lng": -122.323822,
+    "phone": "206-708-7244",
+    "photo_url": "",
+    "website_url": "http://toppotdoughnuts.com/cafe-info.html",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Rapha",
+    "address": "301 E. Pine, Seattle, WA 98122",
+    "lat": 47.615078,
+    "lng": -122.327805,
+    "phone": "206-625-1600",
+    "photo_url": "",
+    "website_url": "https://www.rapha.cc/us/en_US/clubhouses/seattle",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Kaladi Brothers Coffee",
+    "address": "511 E. Pike St., seattle, WA 98122",
+    "lat": 47.613899,
+    "lng": -122.324821,
+    "phone": "(206) 388-1700",
+    "photo_url": "",
+    "website_url": "https://kaladi.com/",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Assembly Hall",
+    "address": "2121 6th Avenue, Seattle, WA 98121",
+    "lat": 47.615108,
+    "lng": -122.340149,
+    "phone": "206-812-8413",
+    "photo_url": "",
+    "website_url": "assemblyhallseattle.com",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Amazon Block 19 Market",
+    "address": "2111 7th Ave, Seattle, WA 98121",
+    "lat": 47.615898,
+    "lng": -122.339386,
+    "phone": "",
+    "photo_url": "",
+    "website_url": "",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      },
+      {
+        "product_id": 3,
+        "flavor_id": 1,
+        "product_name": "1/2 Gallon Jugs",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Amazon Block 20 Market",
+    "address": "2100 7th Avenue, Seattle, WA 98121",
+    "lat": 47.61636,
+    "lng": -122.33905,
+    "phone": "",
+    "photo_url": "",
+    "website_url": "",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      },
+      {
+        "product_id": 3,
+        "flavor_id": 1,
+        "product_name": "1/2 Gallon Jugs",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Amazon re:Invent",
+    "address": "2121 8th Ave, Seattle, WA 98121",
+    "lat": 47.616684,
+    "lng": -122.338966,
+    "phone": "",
+    "photo_url": "",
+    "website_url": "",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Top Pot - 5th Ave",
+    "address": "2124 5th Ave, Seattle, WA 98121",
+    "lat": 47.615253,
+    "lng": -122.34111,
+    "phone": "206-728-1966",
+    "photo_url": "",
+    "website_url": "http://toppotdoughnuts.com/cafe-info.html",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Monorail Espresso - Westlake",
+    "address": "2120 Westlake Ave, Seattle, WA 98121",
+    "lat": 47.617332,
+    "lng": -122.338028,
+    "phone": "",
+    "photo_url": "",
+    "website_url": "https://www.monorailespresso.com/westlakeave.html",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Biscuit Bitch",
+    "address": "2303 3rd Ave, Seattle, WA 98121",
+    "lat": 47.614765,
+    "lng": -122.345276,
+    "phone": "(206)728-2219",
+    "photo_url": "",
+    "website_url": "https://biscuitbitch.com/",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Hot Cakes - Capitol Hill",
+    "address": "1650 E Olive Way, Seattle, WA 98102",
+    "lat": 47.619911,
+    "lng": -122.323807,
+    "phone": "206.258.2591",
+    "photo_url": "",
+    "website_url": "https://getyourhotcakes.com/pages/visit",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Pettirosso",
+    "address": "1101 E Pike St, Seattle, WA 98122",
+    "lat": 47.613876,
+    "lng": -122.317879,
+    "phone": "206-323-4830",
+    "photo_url": "",
+    "website_url": "http://www.pettirossoseattle.com/",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Macrina Bakery - Belltown",
+    "address": "2408 First Ave, Seattle, WA 98121",
+    "lat": 47.614498,
+    "lng": -122.348007,
+    "phone": "206.448.4032",
+    "photo_url": "",
+    "website_url": "https://macrinabakery.com/belltown-cafe.php",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Cafe Cosmos",
+    "address": "2929 1st Ave Ste B, Seattle, WA 98121",
+    "lat": 47.617218,
+    "lng": -122.353622,
+    "phone": "(206) 743-8634",
+    "photo_url": "",
+    "website_url": "https://www.cosmos.coffee/",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  },
+  {
+    "name": "Bakery Nouveau",
+    "address": "137 15th Ave E, Seattle, WA 98112",
+    "lat": 47.619507,
+    "lng": -122.312904,
+    "phone": "206 858 6957",
+    "photo_url": "",
+    "website_url": "bakerynouveau.com",
+    "items": [
+      {
+        "product_id": 1,
+        "flavor_id": 1,
+        "product_name": "Served by the glass",
+        "flavor_name": "Chai"
+      }
+    ]
+  }
+]
