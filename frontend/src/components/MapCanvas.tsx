@@ -1,6 +1,7 @@
 import { APIProvider, Map, Marker, InfoWindow, useMap } from '@vis.gl/react-google-maps';
 import type { Location } from '../types';
 import { useState, useEffect } from 'react';
+import markerIcon from '../assets/markerFlowerIcon.png';
 
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -29,6 +30,10 @@ function ChaiMarker({ location }: { location: Location }) {
       <Marker
         position={{ lat: location.lat, lng: location.lng }}
         onClick={() => setOpen(true)}
+        icon={{
+          url: markerIcon,
+          scaledSize: { width: 40, height: 40, equals: () => false },
+        }}
       />
       {open && (
         <InfoWindow

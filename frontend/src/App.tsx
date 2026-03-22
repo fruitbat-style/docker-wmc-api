@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import SidePanel from './components/SidePanel';
 import MapCanvas from './components/MapCanvas';
-import { fetchLocations } from './api';
+import { fetchLocations, geocodeAddress } from './api';
 import type { Filters, Location } from './types';
 
 const DEFAULT_CENTER: [number, number] = [47.6062, -122.3321]; // Seattle
@@ -45,6 +45,13 @@ export default function App() {
           setCenter([lat, lng]);
         } catch {
           // Fall back to default center
+        }
+      } else if (filters.locationMethod === 'address' && filters.address.trim()) {
+        const result = await geocodeAddress(filters.address);
+        if (result) {
+          lat = result.lat;
+          lng = result.lng;
+          setCenter([lat, lng]);
         }
       } else if (filters.locationMethod === 'metro') {
         const coords = METRO_COORDS[filters.metro];
