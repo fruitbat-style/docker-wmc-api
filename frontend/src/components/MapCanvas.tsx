@@ -44,8 +44,8 @@ function ChaiMarker({ location }: { location: Location }) {
           onCloseClick={() => setOpen(false)}
           pixelOffset={[0, -40]}
         >
-          <div className="font-['Manrope'] min-w-[200px]">
-            <h3 className="font-['Noto_Serif'] font-bold text-sm text-[#351643] m-0 mb-1">{location.name}</h3>
+          <div className="font-['Roboto'] min-w-[200px]">
+            <h3 className="font-['Roboto'] font-bold text-sm text-[#351643] m-0 mb-1">{location.name}</h3>
             <p className="text-xs text-[#4c444d] m-0 mb-1">{location.address}</p>
             {location.phone && <p className="text-xs text-[#4c444d] m-0 mb-1">{location.phone}</p>}
             {location.website_url && (

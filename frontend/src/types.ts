@@ -29,3 +29,18 @@ export interface Filters {
   flavors: string[];
   productTypes: string[];
 }
+
+export interface MetroArea {
+  name: string;
+  coords: [number, number];
+}
+
+export interface FilterOption {
+  id: number;
+  name: string;
+}
+
+export interface FiltersResponse {
+  flavors: FilterOption[];
+  product_types: FilterOption[];
+}
