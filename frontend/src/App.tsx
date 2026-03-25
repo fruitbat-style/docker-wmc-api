@@ -8,13 +8,14 @@ const DEFAULT_CENTER: [number, number] = [47.6062, -122.3321]; // Seattle
 
 export const METRO_AREAS: MetroArea[] = [
   { name: 'Seattle, WA', coords: [47.6062, -122.3321] },
-  { name: 'San Francisco, CA', coords: [37.7749, -122.4194] },
   { name: 'Portland, OR', coords: [45.5152, -122.6784] },
-  { name: 'Los Angeles, CA', coords: [34.0522, -118.2437] },
+  { name: 'Berkeley, CA', coords: [37.8716, -122.2727] },
+  { name: 'Santa Cruz, CA', coords: [36.9741, -122.0308] },
+  { name: 'San Francisco, CA', coords: [37.7749, -122.4194] },
 ];
 
 const DEFAULT_FILTERS: Filters = {
-  locationMethod: 'gps',
+  locationMethod: 'metro',
   address: '',
   metro: METRO_AREAS[0].name,
   distance: 5,
@@ -30,8 +31,10 @@ export default function App() {
   const [panelOpen, setPanelOpen] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [availableFilters, setAvailableFilters] = useState<FiltersResponse | null>(null);
+  const [pendingSearch, setPendingSearch] = useState(false);
   const centerRef = useRef(center);
   centerRef.current = center;
+  const isInitialLoad = useRef(true);
 
   // Fetch available filters from API on mount
   useEffect(() => {
@@ -63,7 +66,9 @@ export default function App() {
           lng = pos.coords.longitude;
           setCenter([lat, lng]);
         } catch {
-          setError('Could not get your location. Using default location.');
+          if (!isInitialLoad.current) {
+            setError('Could not get your location. Using default location.');
+          }
         }
       } else if (filters.locationMethod === 'address' && filters.address.trim()) {
         const result = await geocodeAddress(filters.address);
@@ -94,6 +99,7 @@ export default function App() {
       setError('Failed to load locations. Please try again.');
     } finally {
       setLoading(false);
+      isInitialLoad.current = false;
     }
   }, [filters]);
 
@@ -101,6 +107,15 @@ export default function App() {
   useEffect(() => {
     doSearch();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Run search after filters state has updated
+  useEffect(() => {
+    if (pendingSearch) {
+      setPendingSearch(false);
+      doSearch();
+      setPanelOpen(false);
+    }
+  }, [pendingSearch, doSearch]);
 
   // Auto-dismiss error after 5 seconds
   useEffect(() => {
@@ -115,6 +130,7 @@ export default function App() {
         filters={filters}
         onFiltersChange={setFilters}
         onSearch={() => { doSearch(); setPanelOpen(false); }}
+        onSearchAfterUpdate={() => setPendingSearch(true)}
         open={panelOpen}
         onToggle={() => setPanelOpen((v) => !v)}
         metroAreas={METRO_AREAS}
@@ -125,8 +141,10 @@ export default function App() {
         center={center}
       />
       {loading && (
-        <div className="absolute top-4 right-4 z-[1001] bg-[#4c2c5a] text-white font-['Roboto'] text-sm px-4 py-2 rounded-full shadow-lg">
-          Searching...
+        <div className="absolute inset-0 z-[1001] bg-black/40 flex items-center justify-center">
+          <div className="bg-[#4c2c5a] text-white font-['Roboto'] text-lg px-8 py-4 rounded-xl shadow-lg">
+            Searching...
+          </div>
         </div>
       )}
       {error && (

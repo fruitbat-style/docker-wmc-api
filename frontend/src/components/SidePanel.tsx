@@ -8,13 +8,14 @@ interface SidePanelProps {
   filters: Filters;
   onFiltersChange: (filters: Filters) => void;
   onSearch: () => void;
+  onSearchAfterUpdate: () => void;
   open: boolean;
   onToggle: () => void;
   metroAreas: MetroArea[];
   availableFilters: FiltersResponse | null;
 }
 
-export default function SidePanel({ filters, onFiltersChange, onSearch, open, onToggle, metroAreas, availableFilters }: SidePanelProps) {
+export default function SidePanel({ filters, onFiltersChange, onSearch, onSearchAfterUpdate, open, onToggle, metroAreas, availableFilters }: SidePanelProps) {
   const update = (partial: Partial<Filters>) =>
     onFiltersChange({ ...filters, ...partial });
 
@@ -87,7 +88,7 @@ export default function SidePanel({ filters, onFiltersChange, onSearch, open, on
                 <div className="relative">
                   <select
                     value={filters.metro}
-                    onChange={(e) => update({ metro: e.target.value })}
+                    onChange={(e) => { update({ metro: e.target.value, locationMethod: 'metro' }); onSearchAfterUpdate(); }}
                     className="w-full bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] px-3 py-3 text-sm font-['Roboto'] text-[#1c1b1a] outline-none appearance-none border-none cursor-pointer"
                   >
                     {metroAreas.map((metro) => (
