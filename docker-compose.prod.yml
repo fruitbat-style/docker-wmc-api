@@ -1,0 +1,66 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - wmc-net
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:5232
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - wmc-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY}
+    volumes:
+      - frontend-dist:/app
+    networks:
+      - wmc-net
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - frontend-dist:/srv/frontend:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - api
+      - frontend
+    networks:
+      - wmc-net
+
+volumes:
+  pgdata:
+  frontend-dist:
+  caddy-data:
+  caddy-config:
+
+networks:
+  wmc-net:
+    driver: bridge
