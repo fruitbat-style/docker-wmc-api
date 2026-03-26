@@ -28,6 +28,8 @@ services:
       ASPNETCORE_URLS: http://+:5232
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     volumes:
       - ./api:/app
       - /app/bin

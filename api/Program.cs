@@ -71,13 +71,15 @@ using (var scope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
     await SeedData.SeedLocationsAsync(db, app.Environment.ContentRootPath, logger);
 
-    // Seed default admin user
+    // Seed default admin user from env vars
+    var adminUsername = Environment.GetEnvironmentVariable("ADMIN_USERNAME") ?? "admin";
+    var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD") ?? "Admin123!";
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-    if (await userManager.FindByNameAsync("admin") is null)
+    if (await userManager.FindByNameAsync(adminUsername) is null)
     {
-        var admin = new IdentityUser { UserName = "admin" };
-        await userManager.CreateAsync(admin, "Admin123!");
-        logger.LogInformation("Seeded default admin user (admin / Admin123!)");
+        var admin = new IdentityUser { UserName = adminUsername };
+        await userManager.CreateAsync(admin, adminPassword);
+        logger.LogInformation("Seeded default admin user");
     }
 }
 
