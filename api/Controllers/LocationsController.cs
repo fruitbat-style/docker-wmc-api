@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WMCApi.Services;
 
@@ -38,6 +39,7 @@ public class LocationsController : ControllerBase
         return Ok(locations);
     }
 
+    [Authorize]
     [HttpPost(Name = "CreateLocation")]
     public async Task<ActionResult<Location>> Create([FromBody] LocationUpdateRequest request)
     {
@@ -45,6 +47,7 @@ public class LocationsController : ControllerBase
         return CreatedAtRoute("GetLocations", new { id = created.Id }, created);
     }
 
+    [Authorize]
     [HttpPut("{id}", Name = "UpdateLocation")]
     public async Task<ActionResult<Location>> Update(int id, [FromBody] LocationUpdateRequest request)
     {

@@ -20,6 +20,113 @@ h1 {
   font-size: 1.5rem;
 }
 
+/* Header */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.app-header h1 {
+  margin-bottom: 0;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.logout-btn {
+  padding: 0.3rem 0.6rem;
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.logout-btn:hover {
+  background: #eee;
+}
+
+/* Login */
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.login-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 2rem;
+  width: 320px;
+}
+
+.login-card h1 {
+  text-align: center;
+  color: #4c2c5a;
+  margin-bottom: 1.5rem;
+}
+
+.login-error {
+  background: #fde8e8;
+  color: #c00;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.login-field {
+  margin-bottom: 1rem;
+}
+
+.login-field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.login-field input {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.login-field input:focus {
+  outline: none;
+  border-color: #4c2c5a;
+  box-shadow: 0 0 0 2px rgba(76, 44, 90, 0.15);
+}
+
+.login-btn {
+  width: 100%;
+  padding: 0.6rem;
+  background: #4c2c5a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.login-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .loading,
 .error {
   padding: 2rem;

@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace WMCApi.Data;
 
-public class WmcDbContext : DbContext
+public class WmcDbContext : IdentityDbContext<IdentityUser>
 {
     public WmcDbContext(DbContextOptions<WmcDbContext> options) : base(options) { }
 
@@ -13,6 +15,8 @@ public class WmcDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Location>(entity =>
         {
             entity.ToTable("locations");

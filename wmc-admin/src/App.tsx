@@ -36,12 +36,102 @@ type View = { kind: 'list' } | { kind: 'edit'; id: number } | { kind: 'add' }
 type Tab = 'locations' | 'flavors' | 'productTypes'
 
 export default function App() {
+  const [user, setUser] = useState<string | null>(null)
+  const [authChecked, setAuthChecked] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setUser(data?.username ?? null))
+      .finally(() => setAuthChecked(true))
+  }, [])
+
+  if (!authChecked) return <div className="loading">Loading...</div>
+
+  if (!user) {
+    return (
+      <div className="app">
+        <LoginPage onLogin={setUser} />
+      </div>
+    )
+  }
+
+  return <AdminApp user={user} onLogout={() => setUser(null)} />
+}
+
+function LoginPage({ onLogin }: { onLogin: (username: string) => void }) {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmitting(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username, password }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        throw new Error(data?.message ?? 'Login failed')
+      }
+      onLogin(username)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Login failed')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="login-wrapper">
+      <form className="login-card" onSubmit={handleSubmit}>
+        <h1>WMC Admin</h1>
+        {error && <div className="login-error">{error}</div>}
+        <div className="login-field">
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            autoFocus
+          />
+        </div>
+        <div className="login-field">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <button className="login-btn" type="submit" disabled={submitting || !username || !password}>
+          {submitting ? 'Signing in...' : 'Sign in'}
+        </button>
+      </form>
+    </div>
+  )
+}
+
+function AdminApp({ user, onLogout }: { user: string; onLogout: () => void }) {
   const [locations, setLocations] = useState<Location[]>([])
   const [filters, setFilters] = useState<FiltersResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('locations')
   const [view, setView] = useState<View>({ kind: 'list' })
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+    onLogout()
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -103,7 +193,13 @@ export default function App() {
 
   return (
     <div className="app">
-      <h1>WMC Admin</h1>
+      <div className="app-header">
+        <h1>WMC Admin</h1>
+        <div className="user-info">
+          <span>{user}</span>
+          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        </div>
+      </div>
 
       <nav className="tabs">
         <button className={tab === 'locations' ? 'active' : ''} onClick={() => setTab('locations')}>
@@ -315,6 +411,7 @@ function LocationForm({ mode, location, filters, onBack, onSaved }: LocationForm
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload),
       })
       if (!res.ok) throw new Error(`Save failed: ${res.status}`)
