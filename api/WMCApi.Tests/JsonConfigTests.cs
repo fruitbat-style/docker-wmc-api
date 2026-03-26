@@ -40,7 +40,7 @@ public class JsonConfigTests
         {
             "name": "Test",
             "items": [
-                {"flavor_id": 1, "flavor_name": "Original", "product_id": 2, "product_name": "Powder"}
+                {"flavor_id": 1, "product_id": 2}
             ]
         }
         """;
@@ -48,7 +48,26 @@ public class JsonConfigTests
 
         Assert.NotNull(location);
         Assert.Single(location.Items);
-        Assert.Equal("Original", location.Items[0].FlavorName);
-        Assert.Equal("Powder", location.Items[0].ProductName);
+        Assert.Equal(1, location.Items[0].FlavorId);
+        Assert.Equal(2, location.Items[0].ProductId);
+    }
+
+    [Fact]
+    public void SnakeCaseOptions_SerializesFlavorToSnakeCase()
+    {
+        var item = new LocationItem
+        {
+            Id = 1,
+            FlavorId = 1,
+            ProductId = 2,
+            Flavor = new Flavor { Id = 1, Name = "Original" },
+            ProductType = new ProductType { Id = 2, Name = "Powder" },
+        };
+        var json = JsonSerializer.Serialize(item, JsonConfig.SnakeCaseOptions);
+
+        Assert.Contains("\"flavor_id\"", json);
+        Assert.Contains("\"product_id\"", json);
+        Assert.Contains("\"flavor\"", json);
+        Assert.Contains("\"product_type\"", json);
     }
 }

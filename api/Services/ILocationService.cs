@@ -2,7 +2,7 @@ namespace WMCApi.Services;
 
 public interface ILocationService
 {
-    Task<List<Location>> SearchAsync(double lat, double lng, double radius, int flavor, int product);
+    Task<List<Location>> SearchAsync(double lat, double lng, double radius, int[] flavors, int[] products);
     Task<FiltersResponse> GetFiltersAsync();
 }
 

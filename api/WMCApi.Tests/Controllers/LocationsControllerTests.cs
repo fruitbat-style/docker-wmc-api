@@ -36,7 +36,7 @@ public class LocationsControllerTests
     [InlineData(90)]
     public async Task Get_ValidLat_DoesNotReturnBadRequest(double lat)
     {
-        _serviceMock.Setup(s => s.SearchAsync(lat, 0, 0, 0, 0))
+        _serviceMock.Setup(s => s.SearchAsync(lat, 0, 0, Array.Empty<int>(), Array.Empty<int>()))
             .ReturnsAsync([]);
 
         var result = await _controller.Get(lat: lat);
@@ -61,7 +61,7 @@ public class LocationsControllerTests
     [InlineData(180)]
     public async Task Get_ValidLng_DoesNotReturnBadRequest(double lng)
     {
-        _serviceMock.Setup(s => s.SearchAsync(0, lng, 0, 0, 0))
+        _serviceMock.Setup(s => s.SearchAsync(0, lng, 0, Array.Empty<int>(), Array.Empty<int>()))
             .ReturnsAsync([]);
 
         var result = await _controller.Get(lng: lng);
@@ -81,31 +81,50 @@ public class LocationsControllerTests
     [Fact]
     public async Task Get_ZeroRadius_IsValid()
     {
-        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, 0, 0))
+        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, Array.Empty<int>(), Array.Empty<int>()))
             .ReturnsAsync([]);
 
         var result = await _controller.Get(radius: 0);
         Assert.IsType<OkObjectResult>(result.Result);
     }
 
-    // --- flavor validation ---
+    // --- flavors validation ---
+
+    [Fact]
+    public async Task Get_InvalidFlavors_ReturnsBadRequest()
+    {
+        var result = await _controller.Get(flavors: "abc");
+        var bad = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Contains("flavors", bad.Value!.ToString()!);
+    }
 
     [Fact]
     public async Task Get_NegativeFlavor_ReturnsBadRequest()
     {
-        var result = await _controller.Get(flavor: -1);
+        var result = await _controller.Get(flavors: "-1");
         var bad = Assert.IsType<BadRequestObjectResult>(result.Result);
-        Assert.Contains("flavor", bad.Value!.ToString()!);
+        Assert.Contains("flavors", bad.Value!.ToString()!);
     }
 
-    // --- product validation ---
+    [Fact]
+    public async Task Get_ValidFlavors_ParsesCorrectly()
+    {
+        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, new[] { 1, 3 }, Array.Empty<int>()))
+            .ReturnsAsync([]);
+
+        var result = await _controller.Get(flavors: "1,3");
+        Assert.IsType<OkObjectResult>(result.Result);
+        _serviceMock.Verify(s => s.SearchAsync(0, 0, 0, new[] { 1, 3 }, Array.Empty<int>()), Times.Once);
+    }
+
+    // --- products validation ---
 
     [Fact]
-    public async Task Get_NegativeProduct_ReturnsBadRequest()
+    public async Task Get_InvalidProducts_ReturnsBadRequest()
     {
-        var result = await _controller.Get(product: -1);
+        var result = await _controller.Get(products: "xyz");
         var bad = Assert.IsType<BadRequestObjectResult>(result.Result);
-        Assert.Contains("product", bad.Value!.ToString()!);
+        Assert.Contains("products", bad.Value!.ToString()!);
     }
 
     // --- successful search ---
@@ -117,7 +136,7 @@ public class LocationsControllerTests
         {
             new() { Id = 1, Name = "Test", Lat = 47.6, Lng = -122.3 }
         };
-        _serviceMock.Setup(s => s.SearchAsync(47.6, -122.3, 5, 0, 0))
+        _serviceMock.Setup(s => s.SearchAsync(47.6, -122.3, 5, Array.Empty<int>(), Array.Empty<int>()))
             .ReturnsAsync(expected);
 
         var result = await _controller.Get(lat: 47.6, lng: -122.3, radius: 5);
@@ -128,13 +147,13 @@ public class LocationsControllerTests
     }
 
     [Fact]
-    public async Task Get_DefaultParams_CallsServiceWithZeros()
+    public async Task Get_DefaultParams_CallsServiceWithEmptyArrays()
     {
-        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, 0, 0))
+        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, Array.Empty<int>(), Array.Empty<int>()))
             .ReturnsAsync([]);
 
         await _controller.Get();
-        _serviceMock.Verify(s => s.SearchAsync(0, 0, 0, 0, 0), Times.Once);
+        _serviceMock.Verify(s => s.SearchAsync(0, 0, 0, Array.Empty<int>(), Array.Empty<int>()), Times.Once);
     }
 
     // --- validation priority (first invalid param wins) ---
