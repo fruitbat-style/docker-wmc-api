@@ -54,6 +54,79 @@ public class LocationService : ILocationService
         };
     }
 
+    public async Task<Location> CreateAsync(LocationUpdateRequest request)
+    {
+        var location = new Location
+        {
+            Name = request.Name,
+            Address = request.Address,
+            Phone = request.Phone,
+            WebsiteUrl = request.WebsiteUrl,
+            Lat = request.Lat,
+            Lng = request.Lng,
+        };
+
+        foreach (var flavorId in request.FlavorIds)
+        {
+            foreach (var productTypeId in request.ProductTypeIds)
+            {
+                location.Items.Add(new LocationItem
+                {
+                    FlavorId = flavorId,
+                    ProductId = productTypeId,
+                });
+            }
+        }
+
+        _db.Locations.Add(location);
+        await _db.SaveChangesAsync();
+
+        return await _db.Locations
+            .Include(l => l.Items).ThenInclude(i => i.Flavor)
+            .Include(l => l.Items).ThenInclude(i => i.ProductType)
+            .FirstAsync(l => l.Id == location.Id);
+    }
+
+    public async Task<Location?> UpdateAsync(int id, LocationUpdateRequest request)
+    {
+        var location = await _db.Locations
+            .Include(l => l.Items)
+            .FirstOrDefaultAsync(l => l.Id == id);
+
+        if (location is null)
+            return null;
+
+        location.Name = request.Name;
+        location.Address = request.Address;
+        location.Phone = request.Phone;
+        location.WebsiteUrl = request.WebsiteUrl;
+        location.Lat = request.Lat;
+        location.Lng = request.Lng;
+
+        _db.LocationItems.RemoveRange(location.Items);
+
+        foreach (var flavorId in request.FlavorIds)
+        {
+            foreach (var productTypeId in request.ProductTypeIds)
+            {
+                location.Items.Add(new LocationItem
+                {
+                    LocationId = id,
+                    FlavorId = flavorId,
+                    ProductId = productTypeId,
+                });
+            }
+        }
+
+        await _db.SaveChangesAsync();
+
+        // Reload with navigation properties
+        return await _db.Locations
+            .Include(l => l.Items).ThenInclude(i => i.Flavor)
+            .Include(l => l.Items).ThenInclude(i => i.ProductType)
+            .FirstAsync(l => l.Id == id);
+    }
+
     /// <summary>
     /// Calculates the great-circle distance between two points on Earth using the Haversine formula.
     /// </summary>

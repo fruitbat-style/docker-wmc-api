@@ -38,6 +38,22 @@ public class LocationsController : ControllerBase
         return Ok(locations);
     }
 
+    [HttpPost(Name = "CreateLocation")]
+    public async Task<ActionResult<Location>> Create([FromBody] LocationUpdateRequest request)
+    {
+        var created = await _locationService.CreateAsync(request);
+        return CreatedAtRoute("GetLocations", new { id = created.Id }, created);
+    }
+
+    [HttpPut("{id}", Name = "UpdateLocation")]
+    public async Task<ActionResult<Location>> Update(int id, [FromBody] LocationUpdateRequest request)
+    {
+        var updated = await _locationService.UpdateAsync(id, request);
+        if (updated is null)
+            return NotFound();
+        return Ok(updated);
+    }
+
     [HttpGet("filters", Name = "GetFilters")]
     public async Task<ActionResult<FiltersResponse>> GetFilters()
     {

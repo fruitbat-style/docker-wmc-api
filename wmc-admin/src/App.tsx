@@ -32,6 +32,7 @@ interface FiltersResponse {
   product_types: FilterOption[]
 }
 
+type View = { kind: 'list' } | { kind: 'edit'; id: number } | { kind: 'add' }
 type Tab = 'locations' | 'flavors' | 'productTypes'
 
 export default function App() {
@@ -40,7 +41,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('locations')
-  const [editingId, setEditingId] = useState<number | null>(null)
+  const [view, setView] = useState<View>({ kind: 'list' })
 
   useEffect(() => {
     async function fetchData() {
@@ -65,15 +66,36 @@ export default function App() {
   if (loading) return <div className="loading">Loading...</div>
   if (error) return <div className="error">Error: {error}</div>
 
-  if (editingId !== null) {
-    const location = locations.find((l) => l.id === editingId)
+  if (view.kind === 'edit') {
+    const location = locations.find((l) => l.id === view.id)
     if (!location) return <div className="error">Location not found</div>
     return (
       <div className="app">
-        <EditLocation
+        <LocationForm
+          mode="edit"
           location={location}
           filters={filters!}
-          onBack={() => setEditingId(null)}
+          onBack={() => setView({ kind: 'list' })}
+          onSaved={(updated) => {
+            setLocations((prev) => prev.map((l) => (l.id === updated.id ? updated : l)))
+            setView({ kind: 'list' })
+          }}
+        />
+      </div>
+    )
+  }
+
+  if (view.kind === 'add') {
+    return (
+      <div className="app">
+        <LocationForm
+          mode="add"
+          filters={filters!}
+          onBack={() => setView({ kind: 'list' })}
+          onSaved={(created) => {
+            setLocations((prev) => [...prev, created])
+            setView({ kind: 'list' })
+          }}
         />
       </div>
     )
@@ -95,14 +117,28 @@ export default function App() {
         </button>
       </nav>
 
-      {tab === 'locations' && <LocationsTable locations={locations} onEdit={setEditingId} />}
+      {tab === 'locations' && (
+        <LocationsTable
+          locations={locations}
+          onEdit={(id) => setView({ kind: 'edit', id })}
+          onAdd={() => setView({ kind: 'add' })}
+        />
+      )}
       {tab === 'flavors' && <FilterTable title="Flavors" items={filters?.flavors ?? []} />}
       {tab === 'productTypes' && <FilterTable title="Product Types" items={filters?.product_types ?? []} />}
     </div>
   )
 }
 
-function LocationsTable({ locations, onEdit }: { locations: Location[]; onEdit: (id: number) => void }) {
+function LocationsTable({
+  locations,
+  onEdit,
+  onAdd,
+}: {
+  locations: Location[]
+  onEdit: (id: number) => void
+  onAdd: () => void
+}) {
   const [search, setSearch] = useState('')
 
   const filtered = search.length > 2
@@ -125,6 +161,7 @@ function LocationsTable({ locations, onEdit }: { locations: Location[]; onEdit: 
         {search.length > 2 && (
           <span className="search-hint">{filtered.length} result{filtered.length !== 1 ? 's' : ''}</span>
         )}
+        <button className="add-btn" onClick={onAdd}>+ Add New Location</button>
       </div>
       <div className="table-wrapper">
       <table>
@@ -201,25 +238,43 @@ function FilterTable({ title, items }: { title: string; items: FilterOption[] })
   )
 }
 
-function EditLocation({
-  location,
-  filters,
-  onBack,
-}: {
-  location: Location
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+
+async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
+  const res = await fetch(
+    `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_MAPS_API_KEY}`
+  )
+  if (!res.ok) return null
+  const data = await res.json()
+  if (data.status !== 'OK' || !data.results?.length) return null
+  const { lat, lng } = data.results[0].geometry.location
+  return { lat, lng }
+}
+
+type LocationFormProps = {
   filters: FiltersResponse
   onBack: () => void
-}) {
-  const [name, setName] = useState(location.name)
-  const [address, setAddress] = useState(location.address)
-  const [phone, setPhone] = useState(location.phone)
-  const [websiteUrl, setWebsiteUrl] = useState(location.website_url)
+  onSaved: (location: Location) => void
+} & (
+  | { mode: 'edit'; location: Location }
+  | { mode: 'add'; location?: undefined }
+)
+
+function LocationForm({ mode, location, filters, onBack, onSaved }: LocationFormProps) {
+  const [name, setName] = useState(location?.name ?? '')
+  const [address, setAddress] = useState(location?.address ?? '')
+  const [phone, setPhone] = useState(location?.phone ?? '')
+  const [websiteUrl, setWebsiteUrl] = useState(location?.website_url ?? '')
   const [selectedFlavors, setSelectedFlavors] = useState<Set<number>>(
-    new Set(location.items.map((i) => i.flavor_id))
+    new Set(location?.items.map((i) => i.flavor_id) ?? [])
   )
   const [selectedProductTypes, setSelectedProductTypes] = useState<Set<number>>(
-    new Set(location.items.map((i) => i.product_id))
+    new Set(location?.items.map((i) => i.product_id) ?? [])
   )
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+
+  const canSave = name.trim().length > 0 && address.trim().length > 0
 
   const toggleFlavor = (id: number) =>
     setSelectedFlavors((prev) => {
@@ -235,36 +290,75 @@ function EditLocation({
       return next
     })
 
+  const handleSave = async () => {
+    if (!canSave) return
+    setSaving(true)
+    setSaveError(null)
+    try {
+      const coords = await geocodeAddress(address)
+      if (!coords) throw new Error('Could not geocode address')
+
+      const payload = {
+        name,
+        address,
+        phone,
+        website_url: websiteUrl,
+        lat: coords.lat,
+        lng: coords.lng,
+        flavor_ids: [...selectedFlavors],
+        product_type_ids: [...selectedProductTypes],
+      }
+
+      const url = mode === 'edit' ? `/api/locations/${location.id}` : '/api/locations'
+      const method = mode === 'edit' ? 'PUT' : 'POST'
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) throw new Error(`Save failed: ${res.status}`)
+      const saved: Location = await res.json()
+      onSaved(saved)
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : 'Save failed')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <>
       <button className="back-btn" onClick={onBack}>&larr; Back to list</button>
-      <h1>Edit Location: {location.name}</h1>
+      <h1>{mode === 'edit' ? `Edit Location: ${location.name}` : 'Add New Location'}</h1>
 
       <div className="form-card">
-        <div className="form-section">
-          <h2>Info</h2>
-          <div className="form-row">
-            <label>ID</label>
-            <span className="readonly-value">{location.id}</span>
+        {mode === 'edit' && (
+          <div className="form-section">
+            <h2>Info</h2>
+            <div className="form-row">
+              <label>ID</label>
+              <span className="readonly-value">{location.id}</span>
+            </div>
+            <div className="form-row">
+              <label>Latitude</label>
+              <span className="readonly-value">{location.lat}</span>
+            </div>
+            <div className="form-row">
+              <label>Longitude</label>
+              <span className="readonly-value">{location.lng}</span>
+            </div>
           </div>
-          <div className="form-row">
-            <label>Latitude</label>
-            <span className="readonly-value">{location.lat}</span>
-          </div>
-          <div className="form-row">
-            <label>Longitude</label>
-            <span className="readonly-value">{location.lng}</span>
-          </div>
-        </div>
+        )}
 
         <div className="form-section">
           <h2>Details</h2>
           <div className="form-row">
-            <label htmlFor="name">Name</label>
+            <label htmlFor="name">Name *</label>
             <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="form-row">
-            <label htmlFor="address">Address</label>
+            <label htmlFor="address">Address *</label>
             <input id="address" type="text" value={address} onChange={(e) => setAddress(e.target.value)} />
           </div>
           <div className="form-row">
@@ -312,17 +406,23 @@ function EditLocation({
         </div>
 
         <div className="form-section">
-          <button className="save-btn" disabled>Save (not yet wired)</button>
+          {saveError && <div className="save-error">{saveError}</div>}
+          <button className="save-btn" onClick={handleSave} disabled={saving || !canSave}>
+            {saving ? 'Saving...' : 'Save'}
+          </button>
+          {!canSave && <span className="save-hint">Name and Address are required</span>}
         </div>
 
-        <div className="form-section">
-          <h2>JSON</h2>
-          <textarea
-            className="json-preview"
-            readOnly
-            value={JSON.stringify(location, null, 2)}
-          />
-        </div>
+        {mode === 'edit' && (
+          <div className="form-section">
+            <h2>JSON</h2>
+            <textarea
+              className="json-preview"
+              readOnly
+              value={JSON.stringify(location, null, 2)}
+            />
+          </div>
+        )}
       </div>
     </>
   )
