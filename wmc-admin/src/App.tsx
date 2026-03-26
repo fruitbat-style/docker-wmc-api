@@ -238,7 +238,7 @@ function EditLocation({
   return (
     <>
       <button className="back-btn" onClick={onBack}>&larr; Back to list</button>
-      <h1>Edit Location #{location.id}</h1>
+      <h1>Edit Location: {location.name}</h1>
 
       <div className="form-card">
         <div className="form-section">
