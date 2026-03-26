@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+.DS_Store
+Designs/
+temp-input-files/
+WMCApi.Tests/

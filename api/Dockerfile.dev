@@ -1,0 +1,16 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0
+
+WORKDIR /app
+
+COPY *.csproj ./
+RUN dotnet restore
+
+COPY . .
+
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_URLS=http://+:5232
+ENV DOTNET_USE_POLLING_FILE_WATCHER=true
+
+EXPOSE 5232
+
+ENTRYPOINT ["dotnet", "watch", "run", "--no-launch-profile"]

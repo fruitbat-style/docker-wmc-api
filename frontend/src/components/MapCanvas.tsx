@@ -1,4 +1,4 @@
-import { APIProvider, Map, Marker, InfoWindow, useMap } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, AdvancedMarker, InfoWindow, useMap } from '@vis.gl/react-google-maps';
 import type { Location } from '../types';
 import { useState, useEffect } from 'react';
 import markerIcon from '../assets/markerFlowerIcon.png';
@@ -30,14 +30,12 @@ function ChaiMarker({ location }: { location: Location }) {
 
   return (
     <>
-      <Marker
+      <AdvancedMarker
         position={{ lat: location.lat, lng: location.lng }}
         onClick={() => setOpen(true)}
-        icon={{
-          url: markerIcon,
-          scaledSize: { width: 40, height: 40, equals: () => false },
-        }}
-      />
+      >
+        <img src={markerIcon} alt={location.name} width={40} height={40} />
+      </AdvancedMarker>
       {open && (
         <InfoWindow
           position={{ lat: location.lat, lng: location.lng }}
@@ -72,6 +70,7 @@ export default function MapCanvas({ locations, center }: MapCanvasProps) {
         <Map
           defaultCenter={{ lat: center[0], lng: center[1] }}
           defaultZoom={12}
+          mapId="wmc-map"
           disableDefaultUI={false}
           gestureHandling="greedy"
           className="h-full w-full"
