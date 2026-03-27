@@ -199,16 +199,17 @@ export default function SidePanel({ filters, onFiltersChange, onSearch, onSearch
         </div>
         {/* Toggle Tab */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-300 ease-in-out"
+          className="absolute top-0 flex items-center justify-center transition-all duration-300 ease-in-out"
           style={{
             right: open ? '-25px' : '-100px',
             width: open ? '28px' : '100px',
-            height: open ? '48px' : '100px',
+            height: open ? '96px' : '96px',
           }}
         >
           <button
             onClick={onToggle}
-            className="w-full h-full bg-[#4c2c5a] rounded-r-lg flex flex-col items-center justify-center shadow-[4px_0px_8px_rgba(0,0,0,0.15)] cursor-pointer border-none outline-none"
+            className="w-full h-full bg-[#4c2c5a] rounded-br-lg flex flex-col items-center justify-center shadow-[4px_0px_8px_rgba(0,0,0,0.15)] cursor-pointer outline-none"
+            style={{ borderLeft: '2px solid #3a1f47' }}
             aria-label={open ? 'Close filters' : 'Open filters'}
           >
             {!open && (
