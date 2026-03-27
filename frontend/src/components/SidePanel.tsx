@@ -38,10 +38,10 @@ export default function SidePanel({ filters, onFiltersChange, onSearch, onSearch
 
   return (
     <div
-      className="absolute top-0 bottom-0 z-20 flex transition-transform duration-300 ease-in-out"
-      style={{ transform: open ? 'translateX(0)' : 'translateX(calc(-100% + 28px))' }}
+      className="absolute top-0 bottom-0 z-20 transition-transform duration-300 ease-in-out"
+      style={{ transform: open ? 'translateX(0)' : 'translateX(-100%)' }}
     >
-      <aside className="w-[384px] max-w-[85vw] h-full bg-[#4c2c5a] flex flex-col shrink-0 shadow-[20px_0px_40px_-15px_rgba(0,0,0,0.1)]">
+      <aside className="relative w-[384px] max-w-[85vw] h-full bg-[#4c2c5a] flex flex-col shrink-0 shadow-[20px_0px_40px_-15px_rgba(0,0,0,0.1)]">
         {/* Header */}
         <div className="bg-[#4c2c5a] px-6 py-4 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]">
           <div className="flex items-center gap-4">
@@ -133,7 +133,18 @@ export default function SidePanel({ filters, onFiltersChange, onSearch, onSearch
           {/* Flavors Section */}
           {availableFilters && availableFilters.flavors.length > 0 && (
             <section className="flex flex-col gap-4">
-              <h2 className="font-['Roboto'] font-bold text-lg text-white leading-7">Flavors</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="font-['Roboto'] font-bold text-lg text-white leading-7">Flavors</h2>
+                <button
+                  onClick={() => {
+                    const allSelected = availableFilters.flavors.every((f) => filters.flavors.includes(f.name));
+                    update({ flavors: allSelected ? [] : availableFilters.flavors.map((f) => f.name) });
+                  }}
+                  className="font-['Roboto'] font-bold text-xs text-[#fdd3f4] bg-transparent border-none cursor-pointer hover:text-white transition-colors"
+                >
+                  {availableFilters.flavors.every((f) => filters.flavors.includes(f.name)) ? 'Clear' : 'All'}
+                </button>
+              </div>
               <div className="flex flex-col gap-2">
                 {availableFilters.flavors.map((flavor) => (
                   <CheckboxOption
@@ -150,7 +161,18 @@ export default function SidePanel({ filters, onFiltersChange, onSearch, onSearch
           {/* Product Type Section */}
           {availableFilters && availableFilters.product_types.length > 0 && (
             <section className="flex flex-col gap-4">
-              <h2 className="font-['Roboto'] font-bold text-lg text-white leading-7">Product Type</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="font-['Roboto'] font-bold text-lg text-white leading-7">Product Type</h2>
+                <button
+                  onClick={() => {
+                    const allSelected = availableFilters.product_types.every((t) => filters.productTypes.includes(t.name));
+                    update({ productTypes: allSelected ? [] : availableFilters.product_types.map((t) => t.name) });
+                  }}
+                  className="font-['Roboto'] font-bold text-xs text-[#fdd3f4] bg-transparent border-none cursor-pointer hover:text-white transition-colors"
+                >
+                  {availableFilters.product_types.every((t) => filters.productTypes.includes(t.name)) ? 'Clear' : 'All'}
+                </button>
+              </div>
               <div className="flex flex-col gap-2">
                 {availableFilters.product_types.map((type) => (
                   <CheckboxOption
@@ -169,29 +191,46 @@ export default function SidePanel({ filters, onFiltersChange, onSearch, onSearch
         <div className="bg-[#ece7e4] border-t border-[rgba(206,195,206,0.1)] px-6 py-6">
           <button
             onClick={onSearch}
-            className="w-full bg-[#4c2c5a] text-white font-['Roboto'] font-bold text-lg py-4 rounded-xl shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)] hover:bg-[#3a1f47] transition-colors cursor-pointer"
+            disabled={filters.flavors.length === 0 || filters.productTypes.length === 0}
+            className="w-full bg-[#4c2c5a] text-white font-['Roboto'] font-bold text-lg py-4 rounded-xl shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)] hover:bg-[#3a1f47] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#4c2c5a]"
           >
             Find my Chai
           </button>
         </div>
-      </aside>
-
-      {/* Toggle Tab */}
-      <button
-        onClick={onToggle}
-        className="self-center -ml-px h-12 w-7 bg-[#4c2c5a] rounded-r-lg flex items-center justify-center shadow-[4px_0px_8px_rgba(0,0,0,0.15)] cursor-pointer border-none outline-none"
-        aria-label={open ? 'Close filters' : 'Open filters'}
-      >
-        <svg
-          className="w-4 h-4 text-white transition-transform duration-300"
-          style={{ transform: open ? 'rotate(0deg)' : 'rotate(180deg)' }}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        {/* Toggle Tab */}
+        <div
+          className="absolute top-0 flex items-center justify-center transition-all duration-300 ease-in-out"
+          style={{
+            right: open ? '-25px' : '-100px',
+            width: open ? '28px' : '100px',
+            height: open ? '96px' : '96px',
+          }}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
+          <button
+            onClick={onToggle}
+            className="w-full h-full bg-[#4c2c5a] rounded-br-lg flex flex-col items-center justify-center shadow-[4px_0px_8px_rgba(0,0,0,0.15)] cursor-pointer outline-none"
+            style={{ borderLeft: '2px solid #3a1f47' }}
+            aria-label={open ? 'Close filters' : 'Open filters'}
+          >
+            {!open && (
+              <img
+                src={logo}
+                alt="Morning Glory Chai"
+                className="w-[80px] h-[80px] rounded-lg object-contain"
+              />
+            )}
+            <svg
+              className={`w-4 h-4 text-white transition-transform duration-300 shrink-0 ${!open ? '-mt-[15px] z-10' : ''}`}
+              style={{ transform: open ? 'rotate(0deg)' : 'rotate(180deg)' }}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
+      </aside>
     </div>
   );
 }

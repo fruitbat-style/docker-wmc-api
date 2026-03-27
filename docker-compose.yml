@@ -28,6 +28,8 @@ services:
       ASPNETCORE_URLS: http://+:5232
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     volumes:
       - ./api:/app
       - /app/bin
@@ -52,6 +54,24 @@ services:
       - /app/node_modules
     depends_on:
       - api
+    networks:
+      - wmc-net
+
+  wmc-admin:
+    build:
+      context: ./wmc-admin
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5174:5174"
+    environment:
+      - VITE_GOOGLE_MAPS_API_KEY=${VITE_GOOGLE_MAPS_API_KEY}
+      - API_URL=http://api:5232
+    volumes:
+      - ./wmc-admin:/app
+      - /app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - wmc-net
 

@@ -35,7 +35,7 @@ public class SeedDataTests : IDisposable
         File.WriteAllText(Path.Combine(_tempDir, "Data", "locations-data.json"), json);
     }
 
-    private string SerializeLocations(List<Location> locations)
+    private static string BuildSeedJson(List<object> locations)
     {
         return JsonSerializer.Serialize(locations, JsonConfig.SnakeCaseOptions);
     }
@@ -78,12 +78,20 @@ public class SeedDataTests : IDisposable
     [Fact]
     public async Task SeedLocationsAsync_ValidData_SeedsLocations()
     {
-        var locations = new List<Location>
+        var locations = new List<object>
         {
-            new() { Name = "Shop A", Address = "123 Main St", Lat = 47.6, Lng = -122.3 },
-            new() { Name = "Shop B", Address = "456 Oak Ave", Lat = 45.5, Lng = -122.6 },
+            new {
+                Name = "Shop A", Address = "123 Main St", Lat = 47.6, Lng = -122.3,
+                Phone = "", PhotoUrl = "", WebsiteUrl = "",
+                Items = new[] { new { FlavorId = 1, FlavorName = "Chai", ProductId = 1, ProductName = "Concentrate" } }
+            },
+            new {
+                Name = "Shop B", Address = "456 Oak Ave", Lat = 45.5, Lng = -122.6,
+                Phone = "", PhotoUrl = "", WebsiteUrl = "",
+                Items = new[] { new { FlavorId = 1, FlavorName = "Chai", ProductId = 2, ProductName = "Powder" } }
+            },
         };
-        WriteSeedFile(SerializeLocations(locations));
+        WriteSeedFile(BuildSeedJson(locations));
 
         await SeedData.SeedLocationsAsync(_db, _tempDir, _loggerMock.Object);
 
@@ -92,10 +100,47 @@ public class SeedDataTests : IDisposable
     }
 
     [Fact]
+    public async Task SeedLocationsAsync_ValidData_SeedsFlavorsAndProductTypes()
+    {
+        var locations = new List<object>
+        {
+            new {
+                Name = "Shop A", Address = "", Lat = 0.0, Lng = 0.0,
+                Phone = "", PhotoUrl = "", WebsiteUrl = "",
+                Items = new[]
+                {
+                    new { FlavorId = 1, FlavorName = "Chai", ProductId = 1, ProductName = "Concentrate" },
+                    new { FlavorId = 2, FlavorName = "Vanilla", ProductId = 2, ProductName = "Powder" },
+                }
+            },
+        };
+        WriteSeedFile(BuildSeedJson(locations));
+
+        await SeedData.SeedLocationsAsync(_db, _tempDir, _loggerMock.Object);
+
+        var flavors = await _db.Flavors.OrderBy(f => f.Id).ToListAsync();
+        Assert.Equal(2, flavors.Count);
+        Assert.Equal("Chai", flavors[0].Name);
+        Assert.Equal("Vanilla", flavors[1].Name);
+
+        var productTypes = await _db.ProductTypes.OrderBy(p => p.Id).ToListAsync();
+        Assert.Equal(2, productTypes.Count);
+        Assert.Equal("Concentrate", productTypes[0].Name);
+        Assert.Equal("Powder", productTypes[1].Name);
+    }
+
+    [Fact]
     public async Task SeedLocationsAsync_ValidData_LogsCount()
     {
-        var locations = new List<Location> { new() { Name = "Shop A" } };
-        WriteSeedFile(SerializeLocations(locations));
+        var locations = new List<object>
+        {
+            new {
+                Name = "Shop A", Address = "", Lat = 0.0, Lng = 0.0,
+                Phone = "", PhotoUrl = "", WebsiteUrl = "",
+                Items = Array.Empty<object>()
+            },
+        };
+        WriteSeedFile(BuildSeedJson(locations));
 
         await SeedData.SeedLocationsAsync(_db, _tempDir, _loggerMock.Object);
 
@@ -164,8 +209,15 @@ public class SeedDataTests : IDisposable
     [Fact]
     public async Task SeedLocationsAsync_CalledTwice_OnlySeedsOnce()
     {
-        var locations = new List<Location> { new() { Name = "Shop A" } };
-        WriteSeedFile(SerializeLocations(locations));
+        var locations = new List<object>
+        {
+            new {
+                Name = "Shop A", Address = "", Lat = 0.0, Lng = 0.0,
+                Phone = "", PhotoUrl = "", WebsiteUrl = "",
+                Items = Array.Empty<object>()
+            },
+        };
+        WriteSeedFile(BuildSeedJson(locations));
 
         await SeedData.SeedLocationsAsync(_db, _tempDir, _loggerMock.Object);
         await SeedData.SeedLocationsAsync(_db, _tempDir, _loggerMock.Object);

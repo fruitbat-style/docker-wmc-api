@@ -1,10 +1,10 @@
 export interface LocationItem {
   id: number;
   location_id: number;
-  product_id: number;
   flavor_id: number;
-  product_name: string;
-  flavor_name: string;
+  product_id: number;
+  flavor: FilterOption;
+  product_type: FilterOption;
 }
 
 export interface Location {

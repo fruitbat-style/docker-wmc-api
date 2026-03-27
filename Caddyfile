@@ -8,3 +8,14 @@
         try_files {path} /index.html
     }
 }
+
+:8080 {
+    handle /api/* {
+        reverse_proxy api:5232
+    }
+    handle {
+        root * /srv/admin
+        file_server
+        try_files {path} /index.html
+    }
+}

@@ -25,25 +25,32 @@ function MapUpdater({ center, locations }: { center: [number, number]; locations
   return null;
 }
 
-function ChaiMarker({ location }: { location: Location }) {
-  const [open, setOpen] = useState(false);
-
+function ChaiMarker({ location, open, onOpen, onClose }: { location: Location; open: boolean; onOpen: () => void; onClose: () => void }) {
   return (
     <>
       <AdvancedMarker
         position={{ lat: location.lat, lng: location.lng }}
-        onClick={() => setOpen(true)}
+        onClick={onOpen}
       >
         <img src={markerIcon} alt={location.name} width={40} height={40} />
       </AdvancedMarker>
       {open && (
         <InfoWindow
           position={{ lat: location.lat, lng: location.lng }}
-          onCloseClick={() => setOpen(false)}
+          onCloseClick={onClose}
           pixelOffset={[0, -40]}
+          headerDisabled
         >
           <div className="font-['Roboto'] min-w-[200px]">
-            <h3 className="font-['Roboto'] font-bold text-sm text-[#351643] m-0 mb-1">{location.name}</h3>
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <h3 className="font-['Roboto'] font-bold text-sm text-[#351643] m-0">{location.name}</h3>
+              <button
+                onClick={onClose}
+                className="text-[#7d747e] hover:text-[#351643] cursor-pointer bg-transparent border-none p-0 text-lg leading-none shrink-0 font-bold"
+              >
+                &times;
+              </button>
+            </div>
             <p className="text-xs text-[#4c444d] m-0 mb-1">{location.address}</p>
             {location.phone && <p className="text-xs text-[#4c444d] m-0 mb-1">{location.phone}</p>}
             {location.website_url && (
@@ -64,6 +71,8 @@ function ChaiMarker({ location }: { location: Location }) {
 }
 
 export default function MapCanvas({ locations, center }: MapCanvasProps) {
+  const [openId, setOpenId] = useState<number | null>(null);
+
   return (
     <div className="absolute inset-0">
       <APIProvider apiKey={API_KEY}>
@@ -77,7 +86,13 @@ export default function MapCanvas({ locations, center }: MapCanvasProps) {
         >
           <MapUpdater center={center} locations={locations} />
           {locations.map((loc) => (
-            <ChaiMarker key={loc.id} location={loc} />
+            <ChaiMarker
+              key={loc.id}
+              location={loc}
+              open={openId === loc.id}
+              onOpen={() => setOpenId(loc.id)}
+              onClose={() => setOpenId(null)}
+            />
           ))}
         </Map>
       </APIProvider>

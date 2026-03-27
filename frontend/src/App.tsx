@@ -89,10 +89,28 @@ export default function App() {
         }
       }
 
+      // Convert selected filter names to IDs; pass nothing if all are selected (no filter needed)
+      let flavorIds: number[] | undefined;
+      let productIds: number[] | undefined;
+      if (availableFilters) {
+        if (filters.flavors.length > 0 && filters.flavors.length < availableFilters.flavors.length) {
+          flavorIds = availableFilters.flavors
+            .filter((f) => filters.flavors.includes(f.name))
+            .map((f) => f.id);
+        }
+        if (filters.productTypes.length > 0 && filters.productTypes.length < availableFilters.product_types.length) {
+          productIds = availableFilters.product_types
+            .filter((p) => filters.productTypes.includes(p.name))
+            .map((p) => p.id);
+        }
+      }
+
       const data = await fetchLocations({
         lat,
         lng,
         radius: filters.distance || undefined,
+        flavors: flavorIds,
+        products: productIds,
       });
       setLocations(data);
     } catch {
@@ -101,7 +119,7 @@ export default function App() {
       setLoading(false);
       isInitialLoad.current = false;
     }
-  }, [filters]);
+  }, [filters, availableFilters]);
 
   // Initial load
   useEffect(() => {

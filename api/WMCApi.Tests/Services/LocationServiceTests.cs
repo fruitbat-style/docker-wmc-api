@@ -25,30 +25,40 @@ public class LocationServiceTests : IDisposable
 
     private async Task SeedTestData()
     {
+        _db.Flavors.AddRange(
+            new Flavor { Id = 1, Name = "Original" },
+            new Flavor { Id = 2, Name = "Masala" },
+            new Flavor { Id = 3, Name = "Vanilla" }
+        );
+        _db.ProductTypes.AddRange(
+            new ProductType { Id = 1, Name = "Concentrate" },
+            new ProductType { Id = 2, Name = "Powder" }
+        );
+
         _db.Locations.AddRange(
             new Location
             {
-                Id = 1, Name = "Seattle Shop", Lat = 47.6062, Lng = -122.3321,
+                Id = 1, Name = "Seattle Shop", Lat = 47.6062, Lng = -122.3321, Active = true,
                 Items =
                 [
-                    new LocationItem { Id = 1, LocationId = 1, FlavorId = 1, FlavorName = "Original", ProductId = 1, ProductName = "Concentrate" },
-                    new LocationItem { Id = 2, LocationId = 1, FlavorId = 2, FlavorName = "Masala", ProductId = 1, ProductName = "Concentrate" },
+                    new LocationItem { Id = 1, LocationId = 1, FlavorId = 1, ProductId = 1 },
+                    new LocationItem { Id = 2, LocationId = 1, FlavorId = 2, ProductId = 1 },
                 ]
             },
             new Location
             {
-                Id = 2, Name = "Portland Shop", Lat = 45.5152, Lng = -122.6784,
+                Id = 2, Name = "Portland Shop", Lat = 45.5152, Lng = -122.6784, Active = true,
                 Items =
                 [
-                    new LocationItem { Id = 3, LocationId = 2, FlavorId = 1, FlavorName = "Original", ProductId = 2, ProductName = "Powder" },
+                    new LocationItem { Id = 3, LocationId = 2, FlavorId = 1, ProductId = 2 },
                 ]
             },
             new Location
             {
-                Id = 3, Name = "San Francisco Shop", Lat = 37.7749, Lng = -122.4194,
+                Id = 3, Name = "San Francisco Shop", Lat = 37.7749, Lng = -122.4194, Active = true,
                 Items =
                 [
-                    new LocationItem { Id = 4, LocationId = 3, FlavorId = 3, FlavorName = "Vanilla", ProductId = 2, ProductName = "Powder" },
+                    new LocationItem { Id = 4, LocationId = 3, FlavorId = 3, ProductId = 2 },
                 ]
             }
         );
@@ -61,14 +71,14 @@ public class LocationServiceTests : IDisposable
     public async Task SearchAsync_NoFilters_ReturnsAllLocations()
     {
         await SeedTestData();
-        var results = await _service.SearchAsync(0, 0, 0, 0, 0);
+        var results = await _service.SearchAsync(0, 0, 0, [], []);
         Assert.Equal(3, results.Count);
     }
 
     [Fact]
     public async Task SearchAsync_EmptyDatabase_ReturnsEmptyList()
     {
-        var results = await _service.SearchAsync(0, 0, 0, 0, 0);
+        var results = await _service.SearchAsync(0, 0, 0, [], []);
         Assert.Empty(results);
     }
 
@@ -76,7 +86,7 @@ public class LocationServiceTests : IDisposable
     public async Task SearchAsync_IncludesItems()
     {
         await SeedTestData();
-        var results = await _service.SearchAsync(0, 0, 0, 0, 0);
+        var results = await _service.SearchAsync(0, 0, 0, [], []);
         var seattle = results.First(l => l.Name == "Seattle Shop");
         Assert.Equal(2, seattle.Items.Count);
     }
@@ -84,19 +94,27 @@ public class LocationServiceTests : IDisposable
     // --- SearchAsync: flavor filter ---
 
     [Fact]
-    public async Task SearchAsync_FlavorFilter_ReturnsMatchingLocations()
+    public async Task SearchAsync_SingleFlavor_ReturnsMatchingLocations()
     {
         await SeedTestData();
-        var results = await _service.SearchAsync(0, 0, 0, flavor: 1, product: 0);
+        var results = await _service.SearchAsync(0, 0, 0, flavors: [1], products: []);
         Assert.Equal(2, results.Count); // Seattle + Portland have FlavorId=1
         Assert.All(results, l => Assert.Contains(l.Items, i => i.FlavorId == 1));
+    }
+
+    [Fact]
+    public async Task SearchAsync_MultipleFlavors_ReturnsLocationsMatchingAny()
+    {
+        await SeedTestData();
+        var results = await _service.SearchAsync(0, 0, 0, flavors: [2, 3], products: []);
+        Assert.Equal(2, results.Count); // Seattle (Masala=2) + SF (Vanilla=3)
     }
 
     [Fact]
     public async Task SearchAsync_FlavorFilter_ExcludesNonMatching()
     {
         await SeedTestData();
-        var results = await _service.SearchAsync(0, 0, 0, flavor: 3, product: 0);
+        var results = await _service.SearchAsync(0, 0, 0, flavors: [3], products: []);
         Assert.Single(results);
         Assert.Equal("San Francisco Shop", results[0].Name);
     }
@@ -105,34 +123,42 @@ public class LocationServiceTests : IDisposable
     public async Task SearchAsync_FlavorFilter_NoMatch_ReturnsEmpty()
     {
         await SeedTestData();
-        var results = await _service.SearchAsync(0, 0, 0, flavor: 999, product: 0);
+        var results = await _service.SearchAsync(0, 0, 0, flavors: [999], products: []);
         Assert.Empty(results);
     }
 
     [Fact]
-    public async Task SearchAsync_FlavorZero_SkipsFlavorFilter()
+    public async Task SearchAsync_EmptyFlavors_SkipsFlavorFilter()
     {
         await SeedTestData();
-        var results = await _service.SearchAsync(0, 0, 0, flavor: 0, product: 0);
+        var results = await _service.SearchAsync(0, 0, 0, flavors: [], products: []);
         Assert.Equal(3, results.Count);
     }
 
     // --- SearchAsync: product filter ---
 
     [Fact]
-    public async Task SearchAsync_ProductFilter_ReturnsMatchingLocations()
+    public async Task SearchAsync_SingleProduct_ReturnsMatchingLocations()
     {
         await SeedTestData();
-        var results = await _service.SearchAsync(0, 0, 0, flavor: 0, product: 2);
+        var results = await _service.SearchAsync(0, 0, 0, flavors: [], products: [2]);
         Assert.Equal(2, results.Count); // Portland + SF have ProductId=2
         Assert.All(results, l => Assert.Contains(l.Items, i => i.ProductId == 2));
+    }
+
+    [Fact]
+    public async Task SearchAsync_MultipleProducts_ReturnsLocationsMatchingAny()
+    {
+        await SeedTestData();
+        var results = await _service.SearchAsync(0, 0, 0, flavors: [], products: [1, 2]);
+        Assert.Equal(3, results.Count); // All locations match
     }
 
     [Fact]
     public async Task SearchAsync_ProductFilter_NoMatch_ReturnsEmpty()
     {
         await SeedTestData();
-        var results = await _service.SearchAsync(0, 0, 0, flavor: 0, product: 999);
+        var results = await _service.SearchAsync(0, 0, 0, flavors: [], products: [999]);
         Assert.Empty(results);
     }
 
@@ -143,7 +169,7 @@ public class LocationServiceTests : IDisposable
     {
         await SeedTestData();
         // FlavorId=1 AND ProductId=1 → only Seattle (has both)
-        var results = await _service.SearchAsync(0, 0, 0, flavor: 1, product: 1);
+        var results = await _service.SearchAsync(0, 0, 0, flavors: [1], products: [1]);
         Assert.Single(results);
         Assert.Equal("Seattle Shop", results[0].Name);
     }
@@ -153,7 +179,7 @@ public class LocationServiceTests : IDisposable
     {
         await SeedTestData();
         // FlavorId=3 (SF only) AND ProductId=1 (Seattle only) → no overlap
-        var results = await _service.SearchAsync(0, 0, 0, flavor: 3, product: 1);
+        var results = await _service.SearchAsync(0, 0, 0, flavors: [3], products: [1]);
         Assert.Empty(results);
     }
 
@@ -163,8 +189,7 @@ public class LocationServiceTests : IDisposable
     public async Task SearchAsync_DistanceFilter_ReturnsNearbyLocations()
     {
         await SeedTestData();
-        // Search near Seattle with 5-mile radius — only Seattle Shop is within range
-        var results = await _service.SearchAsync(47.6062, -122.3321, radius: 5, flavor: 0, product: 0);
+        var results = await _service.SearchAsync(47.6062, -122.3321, radius: 5, [], []);
         Assert.Single(results);
         Assert.Equal("Seattle Shop", results[0].Name);
     }
@@ -173,8 +198,7 @@ public class LocationServiceTests : IDisposable
     public async Task SearchAsync_DistanceFilter_LargeRadius_ReturnsAll()
     {
         await SeedTestData();
-        // Seattle to SF is ~680 miles, so 1000-mile radius gets everything
-        var results = await _service.SearchAsync(47.6062, -122.3321, radius: 1000, flavor: 0, product: 0);
+        var results = await _service.SearchAsync(47.6062, -122.3321, radius: 1000, [], []);
         Assert.Equal(3, results.Count);
     }
 
@@ -182,7 +206,7 @@ public class LocationServiceTests : IDisposable
     public async Task SearchAsync_DistanceFilter_ZeroRadius_SkipsFilter()
     {
         await SeedTestData();
-        var results = await _service.SearchAsync(47.6062, -122.3321, radius: 0, flavor: 0, product: 0);
+        var results = await _service.SearchAsync(47.6062, -122.3321, radius: 0, [], []);
         Assert.Equal(3, results.Count);
     }
 
@@ -190,8 +214,7 @@ public class LocationServiceTests : IDisposable
     public async Task SearchAsync_DistanceFilter_ZeroCoords_SkipsFilter()
     {
         await SeedTestData();
-        // radius > 0 but both lat and lng are 0 → filterByDistance = false
-        var results = await _service.SearchAsync(0, 0, radius: 5, flavor: 0, product: 0);
+        var results = await _service.SearchAsync(0, 0, radius: 5, [], []);
         Assert.Equal(3, results.Count);
     }
 
@@ -199,9 +222,7 @@ public class LocationServiceTests : IDisposable
     public async Task SearchAsync_DistanceFilter_LatNonZero_LngZero_FiltersEnabled()
     {
         await SeedTestData();
-        // lat != 0, lng = 0 → filterByDistance = true
-        var results = await _service.SearchAsync(47.6062, 0, radius: 5, flavor: 0, product: 0);
-        // No locations near (47.6, 0) within 5 miles
+        var results = await _service.SearchAsync(47.6062, 0, radius: 5, [], []);
         Assert.Empty(results);
     }
 
@@ -211,8 +232,7 @@ public class LocationServiceTests : IDisposable
     public async Task SearchAsync_DistanceAndFlavor_CombinesFilters()
     {
         await SeedTestData();
-        // Near Seattle (5mi) + FlavorId=2 (Masala, only Seattle)
-        var results = await _service.SearchAsync(47.6062, -122.3321, radius: 5, flavor: 2, product: 0);
+        var results = await _service.SearchAsync(47.6062, -122.3321, radius: 5, flavors: [2], products: []);
         Assert.Single(results);
         Assert.Equal("Seattle Shop", results[0].Name);
     }
@@ -224,7 +244,7 @@ public class LocationServiceTests : IDisposable
     {
         await SeedTestData();
         var filters = await _service.GetFiltersAsync();
-        Assert.Equal(3, filters.Flavors.Count); // Original, Masala, Vanilla
+        Assert.Equal(3, filters.Flavors.Count);
     }
 
     [Fact]
@@ -232,7 +252,7 @@ public class LocationServiceTests : IDisposable
     {
         await SeedTestData();
         var filters = await _service.GetFiltersAsync();
-        Assert.Equal(2, filters.ProductTypes.Count); // Concentrate, Powder
+        Assert.Equal(2, filters.ProductTypes.Count);
     }
 
     [Fact]
@@ -263,11 +283,132 @@ public class LocationServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task GetFiltersAsync_DuplicateFlavors_ReturnsDistinct()
+    public async Task GetFiltersAsync_FlavorNames_AreCorrect()
     {
-        // Seattle and Portland both have FlavorId=1 "Original"
         await SeedTestData();
         var filters = await _service.GetFiltersAsync();
-        Assert.Single(filters.Flavors, f => f.Name == "Original");
+        Assert.Equal("Original", filters.Flavors[0].Name);
+        Assert.Equal("Masala", filters.Flavors[1].Name);
+        Assert.Equal("Vanilla", filters.Flavors[2].Name);
+    }
+
+    // --- SearchAsync: activeOnly filter ---
+
+    [Fact]
+    public async Task SearchAsync_ActiveOnly_ExcludesInactiveLocations()
+    {
+        await SeedTestData();
+        var inactive = await _db.Locations.FindAsync(2);
+        inactive!.Active = false;
+        await _db.SaveChangesAsync();
+
+        var results = await _service.SearchAsync(0, 0, 0, [], [], activeOnly: true);
+        Assert.Equal(2, results.Count);
+        Assert.DoesNotContain(results, l => l.Name == "Portland Shop");
+    }
+
+    [Fact]
+    public async Task SearchAsync_ActiveOnlyFalse_ReturnsAllLocations()
+    {
+        await SeedTestData();
+        var inactive = await _db.Locations.FindAsync(2);
+        inactive!.Active = false;
+        await _db.SaveChangesAsync();
+
+        var results = await _service.SearchAsync(0, 0, 0, [], [], activeOnly: false);
+        Assert.Equal(3, results.Count);
+    }
+
+    [Fact]
+    public async Task SearchAsync_ActiveOnly_CombinesWithOtherFilters()
+    {
+        await SeedTestData();
+        var inactive = await _db.Locations.FindAsync(1);
+        inactive!.Active = false;
+        await _db.SaveChangesAsync();
+
+        // FlavorId=1 matches Seattle (inactive) and Portland (active)
+        var results = await _service.SearchAsync(0, 0, 0, flavors: [1], products: [], activeOnly: true);
+        Assert.Single(results);
+        Assert.Equal("Portland Shop", results[0].Name);
+    }
+
+    [Fact]
+    public async Task SearchAsync_AllInactive_ReturnsEmpty()
+    {
+        await SeedTestData();
+        foreach (var loc in _db.Locations)
+            loc.Active = false;
+        await _db.SaveChangesAsync();
+
+        var results = await _service.SearchAsync(0, 0, 0, [], [], activeOnly: true);
+        Assert.Empty(results);
+    }
+
+    // --- CreateAsync: active field ---
+
+    [Fact]
+    public async Task CreateAsync_SetsActiveField()
+    {
+        await SeedTestData();
+        var request = new LocationUpdateRequest
+        {
+            Name = "New Shop", Address = "123 Main St", Active = true,
+            FlavorIds = [1], ProductTypeIds = [1],
+        };
+        var created = await _service.CreateAsync(request);
+        Assert.True(created.Active);
+    }
+
+    [Fact]
+    public async Task CreateAsync_ActiveFalse_PersistsFalse()
+    {
+        await SeedTestData();
+        var request = new LocationUpdateRequest
+        {
+            Name = "Closed Shop", Address = "456 Oak Ave", Active = false,
+            FlavorIds = [1], ProductTypeIds = [1],
+        };
+        var created = await _service.CreateAsync(request);
+        Assert.False(created.Active);
+    }
+
+    // --- UpdateAsync: active field ---
+
+    [Fact]
+    public async Task UpdateAsync_SetsActiveField()
+    {
+        await SeedTestData();
+        var request = new LocationUpdateRequest
+        {
+            Name = "Seattle Shop", Address = "addr", Active = false,
+            FlavorIds = [1], ProductTypeIds = [1],
+        };
+        var updated = await _service.UpdateAsync(1, request);
+        Assert.NotNull(updated);
+        Assert.False(updated.Active);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_TogglesActiveBackToTrue()
+    {
+        await SeedTestData();
+        // First deactivate
+        var deactivate = new LocationUpdateRequest
+        {
+            Name = "Seattle Shop", Address = "addr", Active = false,
+            FlavorIds = [1], ProductTypeIds = [1],
+        };
+        await _service.UpdateAsync(1, deactivate);
+
+        // Then reactivate
+        var reactivate = new LocationUpdateRequest
+        {
+            Name = "Seattle Shop", Address = "addr", Active = true,
+            FlavorIds = [1], ProductTypeIds = [1],
+        };
+        var updated = await _service.UpdateAsync(1, reactivate);
+        Assert.NotNull(updated);
+        Assert.True(updated.Active);
     }
 }
