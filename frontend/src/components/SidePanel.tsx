@@ -133,7 +133,18 @@ export default function SidePanel({ filters, onFiltersChange, onSearch, onSearch
           {/* Flavors Section */}
           {availableFilters && availableFilters.flavors.length > 0 && (
             <section className="flex flex-col gap-4">
-              <h2 className="font-['Roboto'] font-bold text-lg text-white leading-7">Flavors</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="font-['Roboto'] font-bold text-lg text-white leading-7">Flavors</h2>
+                <button
+                  onClick={() => {
+                    const allSelected = availableFilters.flavors.every((f) => filters.flavors.includes(f.name));
+                    update({ flavors: allSelected ? [] : availableFilters.flavors.map((f) => f.name) });
+                  }}
+                  className="font-['Roboto'] font-bold text-xs text-[#fdd3f4] bg-transparent border-none cursor-pointer hover:text-white transition-colors"
+                >
+                  {availableFilters.flavors.every((f) => filters.flavors.includes(f.name)) ? 'Clear' : 'All'}
+                </button>
+              </div>
               <div className="flex flex-col gap-2">
                 {availableFilters.flavors.map((flavor) => (
                   <CheckboxOption
@@ -150,7 +161,18 @@ export default function SidePanel({ filters, onFiltersChange, onSearch, onSearch
           {/* Product Type Section */}
           {availableFilters && availableFilters.product_types.length > 0 && (
             <section className="flex flex-col gap-4">
-              <h2 className="font-['Roboto'] font-bold text-lg text-white leading-7">Product Type</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="font-['Roboto'] font-bold text-lg text-white leading-7">Product Type</h2>
+                <button
+                  onClick={() => {
+                    const allSelected = availableFilters.product_types.every((t) => filters.productTypes.includes(t.name));
+                    update({ productTypes: allSelected ? [] : availableFilters.product_types.map((t) => t.name) });
+                  }}
+                  className="font-['Roboto'] font-bold text-xs text-[#fdd3f4] bg-transparent border-none cursor-pointer hover:text-white transition-colors"
+                >
+                  {availableFilters.product_types.every((t) => filters.productTypes.includes(t.name)) ? 'Clear' : 'All'}
+                </button>
+              </div>
               <div className="flex flex-col gap-2">
                 {availableFilters.product_types.map((type) => (
                   <CheckboxOption
@@ -169,7 +191,8 @@ export default function SidePanel({ filters, onFiltersChange, onSearch, onSearch
         <div className="bg-[#ece7e4] border-t border-[rgba(206,195,206,0.1)] px-6 py-6">
           <button
             onClick={onSearch}
-            className="w-full bg-[#4c2c5a] text-white font-['Roboto'] font-bold text-lg py-4 rounded-xl shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)] hover:bg-[#3a1f47] transition-colors cursor-pointer"
+            disabled={filters.flavors.length === 0 || filters.productTypes.length === 0}
+            className="w-full bg-[#4c2c5a] text-white font-['Roboto'] font-bold text-lg py-4 rounded-xl shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)] hover:bg-[#3a1f47] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#4c2c5a]"
           >
             Find my Chai
           </button>
