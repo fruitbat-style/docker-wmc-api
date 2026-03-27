@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using WMCApi.Controllers;
@@ -13,7 +15,13 @@ public class LocationsControllerTests
     public LocationsControllerTests()
     {
         _serviceMock = new Mock<ILocationService>();
-        _controller = new LocationsController(_serviceMock.Object);
+        _controller = new LocationsController(_serviceMock.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
     }
 
     // --- lat validation ---
@@ -36,7 +44,7 @@ public class LocationsControllerTests
     [InlineData(90)]
     public async Task Get_ValidLat_DoesNotReturnBadRequest(double lat)
     {
-        _serviceMock.Setup(s => s.SearchAsync(lat, 0, 0, Array.Empty<int>(), Array.Empty<int>()))
+        _serviceMock.Setup(s => s.SearchAsync(lat, 0, 0, Array.Empty<int>(), Array.Empty<int>(), true))
             .ReturnsAsync([]);
 
         var result = await _controller.Get(lat: lat);
@@ -61,7 +69,7 @@ public class LocationsControllerTests
     [InlineData(180)]
     public async Task Get_ValidLng_DoesNotReturnBadRequest(double lng)
     {
-        _serviceMock.Setup(s => s.SearchAsync(0, lng, 0, Array.Empty<int>(), Array.Empty<int>()))
+        _serviceMock.Setup(s => s.SearchAsync(0, lng, 0, Array.Empty<int>(), Array.Empty<int>(), true))
             .ReturnsAsync([]);
 
         var result = await _controller.Get(lng: lng);
@@ -81,7 +89,7 @@ public class LocationsControllerTests
     [Fact]
     public async Task Get_ZeroRadius_IsValid()
     {
-        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, Array.Empty<int>(), Array.Empty<int>()))
+        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, Array.Empty<int>(), Array.Empty<int>(), true))
             .ReturnsAsync([]);
 
         var result = await _controller.Get(radius: 0);
@@ -109,12 +117,12 @@ public class LocationsControllerTests
     [Fact]
     public async Task Get_ValidFlavors_ParsesCorrectly()
     {
-        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, new[] { 1, 3 }, Array.Empty<int>()))
+        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, new[] { 1, 3 }, Array.Empty<int>(), true))
             .ReturnsAsync([]);
 
         var result = await _controller.Get(flavors: "1,3");
         Assert.IsType<OkObjectResult>(result.Result);
-        _serviceMock.Verify(s => s.SearchAsync(0, 0, 0, new[] { 1, 3 }, Array.Empty<int>()), Times.Once);
+        _serviceMock.Verify(s => s.SearchAsync(0, 0, 0, new[] { 1, 3 }, Array.Empty<int>(), true), Times.Once);
     }
 
     // --- products validation ---
@@ -136,7 +144,7 @@ public class LocationsControllerTests
         {
             new() { Id = 1, Name = "Test", Lat = 47.6, Lng = -122.3 }
         };
-        _serviceMock.Setup(s => s.SearchAsync(47.6, -122.3, 5, Array.Empty<int>(), Array.Empty<int>()))
+        _serviceMock.Setup(s => s.SearchAsync(47.6, -122.3, 5, Array.Empty<int>(), Array.Empty<int>(), true))
             .ReturnsAsync(expected);
 
         var result = await _controller.Get(lat: 47.6, lng: -122.3, radius: 5);
@@ -149,7 +157,7 @@ public class LocationsControllerTests
     [Fact]
     public async Task Get_DefaultParams_CallsServiceWithEmptyArrays()
     {
-        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, Array.Empty<int>(), Array.Empty<int>()))
+        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, Array.Empty<int>(), Array.Empty<int>(), true))
             .ReturnsAsync([]);
 
         await _controller.Get();
@@ -183,5 +191,49 @@ public class LocationsControllerTests
         var filters = Assert.IsType<FiltersResponse>(ok.Value);
         Assert.Single(filters.Flavors);
         Assert.Single(filters.ProductTypes);
+    }
+
+    // --- includeInactive ---
+
+    [Fact]
+    public async Task Get_IncludeInactive_Unauthenticated_PassesActiveOnlyTrue()
+    {
+        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, Array.Empty<int>(), Array.Empty<int>(), true))
+            .ReturnsAsync([]);
+
+        await _controller.Get(includeInactive: true);
+        _serviceMock.Verify(s => s.SearchAsync(0, 0, 0, Array.Empty<int>(), Array.Empty<int>(), true), Times.Once);
+    }
+
+    [Fact]
+    public async Task Get_IncludeInactive_Authenticated_PassesActiveOnlyFalse()
+    {
+        var claims = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "admin")], "test"));
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claims }
+        };
+
+        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, Array.Empty<int>(), Array.Empty<int>(), false))
+            .ReturnsAsync([]);
+
+        await _controller.Get(includeInactive: true);
+        _serviceMock.Verify(s => s.SearchAsync(0, 0, 0, Array.Empty<int>(), Array.Empty<int>(), false), Times.Once);
+    }
+
+    [Fact]
+    public async Task Get_NoIncludeInactive_Authenticated_PassesActiveOnlyTrue()
+    {
+        var claims = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "admin")], "test"));
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = claims }
+        };
+
+        _serviceMock.Setup(s => s.SearchAsync(0, 0, 0, Array.Empty<int>(), Array.Empty<int>(), true))
+            .ReturnsAsync([]);
+
+        await _controller.Get();
+        _serviceMock.Verify(s => s.SearchAsync(0, 0, 0, Array.Empty<int>(), Array.Empty<int>(), true), Times.Once);
     }
 }

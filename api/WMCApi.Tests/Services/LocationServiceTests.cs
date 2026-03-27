@@ -38,7 +38,7 @@ public class LocationServiceTests : IDisposable
         _db.Locations.AddRange(
             new Location
             {
-                Id = 1, Name = "Seattle Shop", Lat = 47.6062, Lng = -122.3321,
+                Id = 1, Name = "Seattle Shop", Lat = 47.6062, Lng = -122.3321, Active = true,
                 Items =
                 [
                     new LocationItem { Id = 1, LocationId = 1, FlavorId = 1, ProductId = 1 },
@@ -47,7 +47,7 @@ public class LocationServiceTests : IDisposable
             },
             new Location
             {
-                Id = 2, Name = "Portland Shop", Lat = 45.5152, Lng = -122.6784,
+                Id = 2, Name = "Portland Shop", Lat = 45.5152, Lng = -122.6784, Active = true,
                 Items =
                 [
                     new LocationItem { Id = 3, LocationId = 2, FlavorId = 1, ProductId = 2 },
@@ -55,7 +55,7 @@ public class LocationServiceTests : IDisposable
             },
             new Location
             {
-                Id = 3, Name = "San Francisco Shop", Lat = 37.7749, Lng = -122.4194,
+                Id = 3, Name = "San Francisco Shop", Lat = 37.7749, Lng = -122.4194, Active = true,
                 Items =
                 [
                     new LocationItem { Id = 4, LocationId = 3, FlavorId = 3, ProductId = 2 },
@@ -290,5 +290,125 @@ public class LocationServiceTests : IDisposable
         Assert.Equal("Original", filters.Flavors[0].Name);
         Assert.Equal("Masala", filters.Flavors[1].Name);
         Assert.Equal("Vanilla", filters.Flavors[2].Name);
+    }
+
+    // --- SearchAsync: activeOnly filter ---
+
+    [Fact]
+    public async Task SearchAsync_ActiveOnly_ExcludesInactiveLocations()
+    {
+        await SeedTestData();
+        var inactive = await _db.Locations.FindAsync(2);
+        inactive!.Active = false;
+        await _db.SaveChangesAsync();
+
+        var results = await _service.SearchAsync(0, 0, 0, [], [], activeOnly: true);
+        Assert.Equal(2, results.Count);
+        Assert.DoesNotContain(results, l => l.Name == "Portland Shop");
+    }
+
+    [Fact]
+    public async Task SearchAsync_ActiveOnlyFalse_ReturnsAllLocations()
+    {
+        await SeedTestData();
+        var inactive = await _db.Locations.FindAsync(2);
+        inactive!.Active = false;
+        await _db.SaveChangesAsync();
+
+        var results = await _service.SearchAsync(0, 0, 0, [], [], activeOnly: false);
+        Assert.Equal(3, results.Count);
+    }
+
+    [Fact]
+    public async Task SearchAsync_ActiveOnly_CombinesWithOtherFilters()
+    {
+        await SeedTestData();
+        var inactive = await _db.Locations.FindAsync(1);
+        inactive!.Active = false;
+        await _db.SaveChangesAsync();
+
+        // FlavorId=1 matches Seattle (inactive) and Portland (active)
+        var results = await _service.SearchAsync(0, 0, 0, flavors: [1], products: [], activeOnly: true);
+        Assert.Single(results);
+        Assert.Equal("Portland Shop", results[0].Name);
+    }
+
+    [Fact]
+    public async Task SearchAsync_AllInactive_ReturnsEmpty()
+    {
+        await SeedTestData();
+        foreach (var loc in _db.Locations)
+            loc.Active = false;
+        await _db.SaveChangesAsync();
+
+        var results = await _service.SearchAsync(0, 0, 0, [], [], activeOnly: true);
+        Assert.Empty(results);
+    }
+
+    // --- CreateAsync: active field ---
+
+    [Fact]
+    public async Task CreateAsync_SetsActiveField()
+    {
+        await SeedTestData();
+        var request = new LocationUpdateRequest
+        {
+            Name = "New Shop", Address = "123 Main St", Active = true,
+            FlavorIds = [1], ProductTypeIds = [1],
+        };
+        var created = await _service.CreateAsync(request);
+        Assert.True(created.Active);
+    }
+
+    [Fact]
+    public async Task CreateAsync_ActiveFalse_PersistsFalse()
+    {
+        await SeedTestData();
+        var request = new LocationUpdateRequest
+        {
+            Name = "Closed Shop", Address = "456 Oak Ave", Active = false,
+            FlavorIds = [1], ProductTypeIds = [1],
+        };
+        var created = await _service.CreateAsync(request);
+        Assert.False(created.Active);
+    }
+
+    // --- UpdateAsync: active field ---
+
+    [Fact]
+    public async Task UpdateAsync_SetsActiveField()
+    {
+        await SeedTestData();
+        var request = new LocationUpdateRequest
+        {
+            Name = "Seattle Shop", Address = "addr", Active = false,
+            FlavorIds = [1], ProductTypeIds = [1],
+        };
+        var updated = await _service.UpdateAsync(1, request);
+        Assert.NotNull(updated);
+        Assert.False(updated.Active);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_TogglesActiveBackToTrue()
+    {
+        await SeedTestData();
+        // First deactivate
+        var deactivate = new LocationUpdateRequest
+        {
+            Name = "Seattle Shop", Address = "addr", Active = false,
+            FlavorIds = [1], ProductTypeIds = [1],
+        };
+        await _service.UpdateAsync(1, deactivate);
+
+        // Then reactivate
+        var reactivate = new LocationUpdateRequest
+        {
+            Name = "Seattle Shop", Address = "addr", Active = true,
+            FlavorIds = [1], ProductTypeIds = [1],
+        };
+        var updated = await _service.UpdateAsync(1, reactivate);
+        Assert.NotNull(updated);
+        Assert.True(updated.Active);
     }
 }

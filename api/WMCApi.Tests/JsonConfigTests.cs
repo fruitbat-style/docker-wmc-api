@@ -53,6 +53,23 @@ public class JsonConfigTests
     }
 
     [Fact]
+    public void SnakeCaseOptions_SerializesActiveField()
+    {
+        var location = new Location { Name = "Test", Active = true };
+        var json = JsonSerializer.Serialize(location, JsonConfig.SnakeCaseOptions);
+        Assert.Contains("\"active\":true", json);
+    }
+
+    [Fact]
+    public void SnakeCaseOptions_DeserializesActiveField()
+    {
+        var json = """{"name":"Test","active":true}""";
+        var location = JsonSerializer.Deserialize<Location>(json, JsonConfig.SnakeCaseOptions);
+        Assert.NotNull(location);
+        Assert.True(location.Active);
+    }
+
+    [Fact]
     public void SnakeCaseOptions_SerializesFlavorToSnakeCase()
     {
         var item = new LocationItem
