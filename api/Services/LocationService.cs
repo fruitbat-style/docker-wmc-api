@@ -15,12 +15,15 @@ public class LocationService : ILocationService
         _db = db;
     }
 
-    public async Task<List<Location>> SearchAsync(double lat, double lng, double radius, int[] flavors, int[] products)
+    public async Task<List<Location>> SearchAsync(double lat, double lng, double radius, int[] flavors, int[] products, bool activeOnly = true)
     {
         var query = _db.Locations
             .Include(l => l.Items).ThenInclude(i => i.Flavor)
             .Include(l => l.Items).ThenInclude(i => i.ProductType)
             .AsQueryable();
+
+        if (activeOnly)
+            query = query.Where(l => l.Active);
 
         if (flavors.Length > 0)
             query = query.Where(l => l.Items.Any(i => flavors.Contains(i.FlavorId)));

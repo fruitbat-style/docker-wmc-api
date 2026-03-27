@@ -21,7 +21,8 @@ public class LocationsController : ControllerBase
         [FromQuery] double lng = 0,
         [FromQuery] double radius = 0,
         [FromQuery] string flavors = "",
-        [FromQuery] string products = "")
+        [FromQuery] string products = "",
+        [FromQuery] bool includeInactive = false)
     {
         if (lat < -90 || lat > 90)
             return BadRequest("lat must be between -90 and 90.");
@@ -35,7 +36,8 @@ public class LocationsController : ControllerBase
         if (!TryParseIds(products, out var productIds))
             return BadRequest("products must be comma-separated positive integers.");
 
-        var locations = await _locationService.SearchAsync(lat, lng, radius, flavorIds, productIds);
+        var activeOnly = !(includeInactive && User.Identity?.IsAuthenticated == true);
+        var locations = await _locationService.SearchAsync(lat, lng, radius, flavorIds, productIds, activeOnly);
         return Ok(locations);
     }
 

@@ -138,7 +138,7 @@ function AdminApp({ user, onLogout }: { user: string; onLogout: () => void }) {
     async function fetchData() {
       try {
         const [locRes, filterRes] = await Promise.all([
-          fetch('/api/locations'),
+          fetch('/api/locations?includeInactive=true', { credentials: 'include' }),
           fetch('/api/locations/filters'),
         ])
         if (!locRes.ok) throw new Error(`Locations: ${locRes.status}`)
