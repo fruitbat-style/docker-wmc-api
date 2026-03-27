@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WMCApi.Data;
@@ -11,9 +12,11 @@ using WMCApi.Data;
 namespace WMCApi.Migrations
 {
     [DbContext(typeof(WmcDbContext))]
-    partial class WmcDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260327001353_AddLocationActive")]
+    partial class AddLocationActive
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

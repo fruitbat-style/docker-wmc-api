@@ -28,6 +28,7 @@ public class LocationUpdateRequest
     public string WebsiteUrl { get; set; } = "";
     public double Lat { get; set; }
     public double Lng { get; set; }
+    public bool Active { get; set; }
     public int[] FlavorIds { get; set; } = [];
     public int[] ProductTypeIds { get; set; } = [];
 }

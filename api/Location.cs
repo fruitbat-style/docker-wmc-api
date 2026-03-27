@@ -12,6 +12,7 @@ public class Location
     public string Phone { get; set; } = "";
     public string PhotoUrl { get; set; } = "";
     public string WebsiteUrl { get; set; } = "";
+    public bool Active { get; set; }
     public List<LocationItem> Items { get; set; } = [];
 }
 

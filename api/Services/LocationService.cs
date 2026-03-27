@@ -64,6 +64,7 @@ public class LocationService : ILocationService
             WebsiteUrl = request.WebsiteUrl,
             Lat = request.Lat,
             Lng = request.Lng,
+            Active = request.Active,
         };
 
         foreach (var flavorId in request.FlavorIds)
@@ -102,6 +103,7 @@ public class LocationService : ILocationService
         location.WebsiteUrl = request.WebsiteUrl;
         location.Lat = request.Lat;
         location.Lng = request.Lng;
+        location.Active = request.Active;
 
         _db.LocationItems.RemoveRange(location.Items);
 

@@ -168,7 +168,7 @@ h1 {
   margin-bottom: 0.5rem;
 }
 
-.search-bar input {
+.search-bar input[type="text"] {
   padding: 0.4rem 0.6rem;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -176,7 +176,7 @@ h1 {
   width: 260px;
 }
 
-.search-bar input:focus {
+.search-bar input[type="text"]:focus {
   outline: none;
   border-color: #4c2c5a;
   box-shadow: 0 0 0 2px rgba(76, 44, 90, 0.15);

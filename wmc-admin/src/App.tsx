@@ -24,6 +24,7 @@ interface Location {
   phone: string
   photo_url: string
   website_url: string
+  active: boolean
   items: LocationItem[]
 }
 
@@ -236,10 +237,11 @@ function LocationsTable({
   onAdd: () => void
 }) {
   const [search, setSearch] = useState('')
+  const [showInactive, setShowInactive] = useState(false)
 
-  const filtered = search.length > 2
-    ? locations.filter((l) => l.name.toLowerCase().includes(search.toLowerCase()))
-    : locations
+  let filtered = showInactive ? locations : locations.filter((l) => l.active)
+  if (search.length > 2)
+    filtered = filtered.filter((l) => l.name.toLowerCase().includes(search.toLowerCase()))
 
   return (
     <>
@@ -251,6 +253,14 @@ function LocationsTable({
           onChange={(e) => setSearch(e.target.value)}
         />
         {search && <button className="clear-btn" onClick={() => setSearch('')}>&times;</button>}
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={showInactive}
+            onChange={(e) => setShowInactive(e.target.checked)}
+          />
+          Show Inactive Locations
+        </label>
         {search.length > 0 && search.length <= 2 && (
           <span className="search-hint">Type at least 3 characters to filter</span>
         )}
@@ -361,6 +371,7 @@ function LocationForm({ mode, location, filters, onBack, onSaved }: LocationForm
   const [address, setAddress] = useState(location?.address ?? '')
   const [phone, setPhone] = useState(location?.phone ?? '')
   const [websiteUrl, setWebsiteUrl] = useState(location?.website_url ?? '')
+  const [active, setActive] = useState(location?.active ?? true)
   const [selectedFlavors, setSelectedFlavors] = useState<Set<number>>(
     new Set(location?.items.map((i) => i.flavor_id) ?? [])
   )
@@ -399,6 +410,7 @@ function LocationForm({ mode, location, filters, onBack, onSaved }: LocationForm
         address,
         phone,
         website_url: websiteUrl,
+        active,
         lat: coords.lat,
         lng: coords.lng,
         flavor_ids: [...selectedFlavors],
@@ -465,6 +477,16 @@ function LocationForm({ mode, location, filters, onBack, onSaved }: LocationForm
           <div className="form-row">
             <label htmlFor="website">Website</label>
             <input id="website" type="text" value={websiteUrl} onChange={(e) => setWebsiteUrl(e.target.value)} />
+          </div>
+          <div className="form-row">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={active}
+                onChange={(e) => setActive(e.target.checked)}
+              />
+              Active
+            </label>
           </div>
         </div>
 
