@@ -30,5 +30,8 @@ jobs:
             git fetch origin main
             git checkout main
             git pull origin main
-            docker compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.prod.yml down
+            docker volume rm -f docker-wmc_frontend-dist docker-wmc_admin-dist
+            docker compose -f docker-compose.prod.yml build --no-cache
+            docker compose -f docker-compose.prod.yml up -d
             docker image prune -f
