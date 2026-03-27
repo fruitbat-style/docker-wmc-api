@@ -38,10 +38,10 @@ export default function SidePanel({ filters, onFiltersChange, onSearch, onSearch
 
   return (
     <div
-      className="absolute top-0 bottom-0 z-20 flex transition-transform duration-300 ease-in-out"
-      style={{ transform: open ? 'translateX(0)' : 'translateX(calc(-100% + 28px))' }}
+      className="absolute top-0 bottom-0 z-20 transition-transform duration-300 ease-in-out"
+      style={{ transform: open ? 'translateX(0)' : 'translateX(-100%)' }}
     >
-      <aside className="w-[384px] max-w-[85vw] h-full bg-[#4c2c5a] flex flex-col shrink-0 shadow-[20px_0px_40px_-15px_rgba(0,0,0,0.1)]">
+      <aside className="relative w-[384px] max-w-[85vw] h-full bg-[#4c2c5a] flex flex-col shrink-0 shadow-[20px_0px_40px_-15px_rgba(0,0,0,0.1)]">
         {/* Header */}
         <div className="bg-[#4c2c5a] px-6 py-4 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]">
           <div className="flex items-center gap-4">
@@ -197,24 +197,39 @@ export default function SidePanel({ filters, onFiltersChange, onSearch, onSearch
             Find my Chai
           </button>
         </div>
-      </aside>
-
-      {/* Toggle Tab */}
-      <button
-        onClick={onToggle}
-        className="self-center -ml-px h-12 w-7 bg-[#4c2c5a] rounded-r-lg flex items-center justify-center shadow-[4px_0px_8px_rgba(0,0,0,0.15)] cursor-pointer border-none outline-none"
-        aria-label={open ? 'Close filters' : 'Open filters'}
-      >
-        <svg
-          className="w-4 h-4 text-white transition-transform duration-300"
-          style={{ transform: open ? 'rotate(0deg)' : 'rotate(180deg)' }}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        {/* Toggle Tab */}
+        <div
+          className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-300 ease-in-out"
+          style={{
+            right: open ? '-25px' : '-100px',
+            width: open ? '28px' : '100px',
+            height: open ? '48px' : '100px',
+          }}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
+          <button
+            onClick={onToggle}
+            className="w-full h-full bg-[#4c2c5a] rounded-r-lg flex flex-col items-center justify-center shadow-[4px_0px_8px_rgba(0,0,0,0.15)] cursor-pointer border-none outline-none"
+            aria-label={open ? 'Close filters' : 'Open filters'}
+          >
+            {!open && (
+              <img
+                src={logo}
+                alt="Morning Glory Chai"
+                className="w-[80px] h-[80px] rounded-lg object-contain"
+              />
+            )}
+            <svg
+              className={`w-4 h-4 text-white transition-transform duration-300 shrink-0 ${!open ? '-mt-[15px] z-10' : ''}`}
+              style={{ transform: open ? 'rotate(0deg)' : 'rotate(180deg)' }}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
+      </aside>
     </div>
   );
 }
