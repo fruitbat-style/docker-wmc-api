@@ -23,6 +23,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:5232
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
@@ -40,24 +42,39 @@ services:
     networks:
       - wmc-net
 
+  wmc-admin:
+    build:
+      context: ./wmc-admin
+      dockerfile: Dockerfile
+      args:
+        VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY}
+    volumes:
+      - admin-dist:/app
+    networks:
+      - wmc-net
+
   caddy:
     image: caddy:2-alpine
     ports:
       - "80:80"
+      - "8080:8080"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - frontend-dist:/srv/frontend:ro
+      - admin-dist:/srv/admin:ro
       - caddy-data:/data
       - caddy-config:/config
     depends_on:
       - api
       - frontend
+      - wmc-admin
     networks:
       - wmc-net
 
 volumes:
   pgdata:
   frontend-dist:
+  admin-dist:
   caddy-data:
   caddy-config:
 
